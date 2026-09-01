@@ -1,0 +1,220 @@
+{
+  "captures": {
+    "seeded": {
+      "capture_command": "make demo-generate-usage-evidence",
+      "export_identities": {
+        "charts": [
+          {
+            "display_name": "Raw payment volume by gateway",
+            "native_uuid": "73995395-7d07-58ea-90b7-65330d4f3b22",
+            "queries_dataset_uuid": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4"
+          },
+          {
+            "display_name": "Recognized revenue by order date",
+            "native_uuid": "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643",
+            "queries_dataset_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+          },
+          {
+            "display_name": "Recognized revenue by status",
+            "native_uuid": "6f0af5cf-146c-56c7-a57d-0912550108f9",
+            "queries_dataset_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+          }
+        ],
+        "dashboards": [
+          {
+            "contains_chart_uuids": [
+              "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643",
+              "6f0af5cf-146c-56c7-a57d-0912550108f9",
+              "73995395-7d07-58ea-90b7-65330d4f3b22"
+            ],
+            "display_name": "Revenue review",
+            "native_uuid": "655abff1-3c4f-5921-96ba-b67616cda208"
+          }
+        ],
+        "datasets": [
+          {
+            "display_name": "finance_orders_daily",
+            "native_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+          },
+          {
+            "display_name": "raw_payments",
+            "native_uuid": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4"
+          }
+        ]
+      },
+      "native_ids": {
+        "charts": {
+          "Raw payment volume by gateway": 3,
+          "Recognized revenue by order date": 2,
+          "Recognized revenue by status": 1
+        },
+        "dashboard": 1
+      },
+      "records": {
+        "chart_detail_raw_payment_volume_by_gateway": {
+          "bytes": 1090,
+          "path": "rest/chart-raw_payment_volume_by_gateway-detail.json",
+          "sha256": "5ea068a243ae1d500a4244a70b15dea60fae31e30b713335d3b351e0ed5ae866"
+        },
+        "chart_detail_recognized_revenue_by_order_date": {
+          "bytes": 1123,
+          "path": "rest/chart-recognized_revenue_by_order_date-detail.json",
+          "sha256": "eb1998a3babed2b7b127b66023de4f7a701c0e945ef1c29900c56cd23f67f681"
+        },
+        "chart_detail_recognized_revenue_by_status": {
+          "bytes": 1106,
+          "path": "rest/chart-recognized_revenue_by_status-detail.json",
+          "sha256": "9c141cc28e54a1ccdcda1a021cd4a3532908ab09b5c27182b236eb34320d8ec7"
+        },
+        "chart_list": {
+          "bytes": 8454,
+          "path": "rest/chart-list.json",
+          "sha256": "3da793e527c71d201762ceef4d7b334d10c6c3a5f939e3901472696ff44b6368"
+        },
+        "dashboard_detail": {
+          "bytes": 2422,
+          "path": "rest/dashboard-detail.json",
+          "sha256": "bc09a29c4e3b91a2afe7f8fc3027e837c966b3ef1bc100d36528e15f33e5a502"
+        },
+        "dashboard_list": {
+          "bytes": 2512,
+          "path": "rest/dashboard-list.json",
+          "sha256": "04f01078d8ed397a522fe00faf358277e6cb1a7717f66bd923605d23bdef74d8"
+        },
+        "official_export": {
+          "bytes": 11165,
+          "path": "official-export.zip",
+          "sha256": "5c30a704e6cfa0ea8144c1bd0bac273d605615067b725e00eceb029677e832a3"
+        }
+      },
+      "rest_disclosure": {
+        "chart_identity_field": "uuid",
+        "chart_reference_field": "datasource_uuid",
+        "consequence": "live REST can identify and relate both types, under different field names than the export transport; the connector reads both spellings, so a chart's dataset and a dashboard's charts are observed on either transport (hy-rt4v)",
+        "dashboard_identity_field": "uuid",
+        "dashboard_reference_field": "position_json",
+        "dashboard_reference_shape": "a JSON string holding the same layout tree the export carries as a mapping; CHART components name the chart by meta.uuid in both",
+        "endpoints_checked": [
+          "/api/v1/chart/",
+          "/api/v1/chart/{id}",
+          "/api/v1/dashboard/",
+          "/api/v1/dashboard/{id}"
+        ],
+        "rest_contains_chart_uuids": [
+          "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643",
+          "6f0af5cf-146c-56c7-a57d-0912550108f9",
+          "73995395-7d07-58ea-90b7-65330d4f3b22"
+        ]
+      },
+      "transport": [
+        "official_export_zip",
+        "rest_list",
+        "rest_detail"
+      ]
+    }
+  },
+  "domain": "revenue",
+  "expected_observed_references": {
+    "chart_queries_dataset": {
+      "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+      "6f0af5cf-146c-56c7-a57d-0912550108f9": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+      "73995395-7d07-58ea-90b7-65330d4f3b22": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4"
+    },
+    "dashboard_contains_chart": {
+      "655abff1-3c4f-5921-96ba-b67616cda208": [
+        "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643",
+        "6f0af5cf-146c-56c7-a57d-0912550108f9",
+        "73995395-7d07-58ea-90b7-65330d4f3b22"
+      ]
+    },
+    "dataset_reference_counts": {
+      "5bcf01e3-3f70-50d2-bb31-562b627b09b8": 0,
+      "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4": 1,
+      "ae48881d-334f-54a7-94e8-1ffcc73866e2": 2
+    },
+    "uncovered_by_this_capture": {
+      "dataset_uuids": [
+        "5bcf01e3-3f70-50d2-bb31-562b627b09b8"
+      ],
+      "reason": "no seeded chart queries them, so a dashboard export of the seeded dashboard carries neither the dataset nor a reference to it"
+    }
+  },
+  "extends_fixture": "canonical-recognized-revenue-by-region-v1",
+  "fixture_id": "canonical-revenue-review-usage-v1",
+  "purpose": "Real evidence that the two references a dataset's use is countable from -- chart --queries--> dataset and dashboard --contains--> chart -- exist in the pinned source and survive a sync as persisted relationships.",
+  "rest_disclosure": {
+    "chart_identity_field": "uuid",
+    "chart_reference_field": "datasource_uuid",
+    "consequence": "live REST can identify and relate both types, under different field names than the export transport; this connector still reads charts and dashboards from export only, and closing that is a separate slice",
+    "dashboard_identity_field": "uuid",
+    "dashboard_reference_field": "position_json",
+    "dashboard_reference_shape": "a JSON string holding the same layout tree the export carries as a mapping; CHART components name the chart by meta.uuid in both",
+    "endpoints_checked": [
+      "/api/v1/chart/",
+      "/api/v1/chart/{id}",
+      "/api/v1/dashboard/",
+      "/api/v1/dashboard/{id}"
+    ],
+    "rest_contains_chart_uuids": [
+      "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643",
+      "6f0af5cf-146c-56c7-a57d-0912550108f9",
+      "73995395-7d07-58ea-90b7-65330d4f3b22"
+    ]
+  },
+  "schema_version": 1,
+  "secret_scan": {
+    "credential_labels_checked": [
+      "SUPERSET_ADMIN_PASSWORD",
+      "ANALYTICS_DB_PASSWORD",
+      "SUPERSET_DB_PASSWORD"
+    ],
+    "evidence_path": "secret-scan.json",
+    "evidence_sha256": "05139cc5304ca5899b163cc26ca2d49f1ddb3576dc1d3e837e67a8ea0377bb2b",
+    "findings": [],
+    "status": "passed"
+  },
+  "source_contract": {
+    "charts": [
+      {
+        "display_name": "Recognized revenue by status",
+        "native_uuid": "6f0af5cf-146c-56c7-a57d-0912550108f9",
+        "queries_dataset_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+      },
+      {
+        "display_name": "Recognized revenue by order date",
+        "native_uuid": "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643",
+        "queries_dataset_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+      },
+      {
+        "display_name": "Raw payment volume by gateway",
+        "native_uuid": "73995395-7d07-58ea-90b7-65330d4f3b22",
+        "queries_dataset_uuid": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4"
+      }
+    ],
+    "config_identity": {
+      "bootstrap": "docker/superset/demo_usage_bootstrap.py",
+      "metadata_database": "postgres:16",
+      "profile": "demo",
+      "seeded_onto": "docker/superset/demo_bootstrap.py"
+    },
+    "dashboards": [
+      {
+        "contains_chart_uuids": [
+          "4d82dc9e-fe4b-5989-b5cb-3f20eb7c1643",
+          "6f0af5cf-146c-56c7-a57d-0912550108f9",
+          "73995395-7d07-58ea-90b7-65330d4f3b22"
+        ],
+        "display_name": "Revenue review",
+        "native_uuid": "655abff1-3c4f-5921-96ba-b67616cda208"
+      }
+    ],
+    "database": {
+      "display_name": "analytics",
+      "native_uuid": "191e8838-4a5c-5f3f-9d53-71f52f56f7f8"
+    },
+    "image": "apache/superset:6.1.0",
+    "image_digest": "sha256:fb3464528ec7076f91195f0ff7835755aa023e281f1bb78a84782ce7a36b3705",
+    "source_system": "apache-superset",
+    "source_version": "6.1.0"
+  }
+}

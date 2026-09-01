@@ -1,0 +1,151 @@
+# The governed arm's KNOWN structural failures, one line of data each.
+#
+# A ratchet, not a demotion, and the difference is that it fails in both
+# directions: an entry that stops failing is as red as a failure nobody
+# expected. Landing the last of the revenue row's beads means deleting that
+# entry in the same pull request, because the harness will refuse to pass while
+# it claims a defect that is gone.
+#
+# Deliberately data with no matching logic in it. Each entry is one exact case
+# id, one exact predicate name, one exact BRANCH code, one line saying what was
+# measured, the SHAPE of the claim, and what RETIRES the entry. There is no
+# pattern syntax and no arm field: only the governed arm's critical failures
+# decide the exit code, and a wildcard here would be the demotion this mechanism
+# exists instead of.
+#
+# THE CODE FIELD IS REQUIRED AND HAS NO DEFAULT (hy-1pqa). A predicate name says
+# what was checked, not what went wrong, and most of these predicates fail in
+# several ways. The revenue entry below covered a MISSING validate call on one
+# re-roll and, on the next, a call that happens and comes back unjudged -- two
+# different defects under one entry, green throughout, because the ratchet
+# matched the predicate name alone. The `code` names the branch, it must be a
+# FAILING branch of that predicate, and EVERY exhibiting run must carry it: a
+# corpus producing two codes under one entry is red until this file says which
+# defect it now describes.
+#
+# The granularity is the branch and no finer, so two defects landing in the SAME
+# branch still look alike -- `did_not_validate` covers a mis-resolved plan and an
+# outright invalid one. Going finer means comparing run content, which is
+# brittle: duplicating one resolve step on a recording changes the scorer's
+# explanation string while the defect, the predicate and the verdict all hold
+# still.
+#
+# THE RETIREMENT FIELD IS REQUIRED AND HAS NO DEFAULT (hy-p8k5). Both entries
+# used to name a CLOSED bead -- hy-pvbu 2026-07-30, hy-9lct 2026-07-29 -- so no
+# fix could delete either one and nothing could see it. #25's close condition is
+# stated over this file, which made that condition unreachable while the ratchet
+# read green.
+#
+#   fix:   a defect awaiting a patch. `beads` lists the OPEN work whose landing
+#          deletes this entry, as a list, because retirement is not always one
+#          bead's to do.
+#   limit: an architectural limit no patch retires. `adr` names the accepted
+#          decision that says so, and that ADR must name this case AND this
+#          predicate, or `limit` would be a downgrade any ADR could rubber-stamp.
+#
+# The loader checks everything about a limit that needs no tracker: the ADR
+# exists, still says "Status: accepted", and names the row. Whether a `fix` row's
+# beads are still OPEN needs `bd`, which the forge does not install, so it lives
+# in scripts/check_expected_failure_owners.py and runs at a seat.
+#
+# THE SHAPE FIELD IS REQUIRED AND HAS NO DEFAULT (hy-xfhr, ruling hy-5e1p).
+# Since hy-qc4u the store keeps every session's run of a case, so "this
+# predicate fails" no longer names one outcome, and the rule it used to be --
+# any stored run failing keeps the entry alive -- let a pre-fix recording keep a
+# fixed defect declared forever.
+#
+#   every: every stored run of the case exhibits the defect. Another failing run
+#          needs no edit here; one run that does NOT exhibit it is red.
+#   some:  the defect is intermittent, and the entry carries the measurement it
+#          rests on -- runs_exhibiting of runs_scored. A corpus that no longer
+#          shows those numbers is red until this file states what it does show.
+#
+# THE POPULATION THOSE COUNTS ARE OVER. One committed recording is ONE
+# REPETITION -- `stability.repeat_and_report` runs N, compares all N and commits
+# `recordings[0]`, which `tests/unit/evals/test_live_arms_caller.py:223` pins on
+# purpose. So a count here is over repetition ZERO of each committed session,
+# one per session, and that sample is selected rather than random: index 0 is
+# the coldest repetition of its session. A rate from a stability report is over
+# the in-process repetitions and is a different number; it does not go here.
+#
+# Re-recorded on the validate-directive fix (hy-t3am), which moves tools_hash
+# and so re-rolls the governed arm: live qwen2.5:7b, Ollama 0.32.4, observed
+# 32,768-token window, against the real revenue slice. The reasons below
+# describe THOSE recordings. Both entries survived the re-roll, but only
+# hy-9lct's kept its mechanism; hy-pvbu's changed under it, from a call that
+# never happened to a call that happens and fails -- which is the thing this
+# file warned about on the previous re-roll and is why a reason is re-read
+# rather than carried forward. That change is what the `code` field now catches:
+# the same drift today moves the branch from `never_called_validate` to
+# `did_not_validate` and the entry goes red. The reason prose is still not read
+# by anything -- a paragraph is not comparable -- so it is re-read by a person
+# and the code is what the harness checks.
+schema_version: 4
+expected:
+  - case_id: revenue_by_region
+    predicate: plan_validated_before_the_answer
+    # MEASURED off the committed recording rather than read off the reason
+    # below: the arm's validate call names a bundle_id it did resolve, so this
+    # is not `validated_an_unresolved_bundle`; the service re-resolved
+    # internally on the directive's asset_refs and answered 'unverifiable', so
+    # the plan was never judged. That is the `did_not_validate` branch, which is
+    # also the branch an outright invalid plan takes -- the recorded limit of
+    # this granularity, and it is why the reason still has to be re-read by a
+    # person on every re-roll.
+    code: did_not_validate
+    # A pending fix, and NOT hy-pvbu, which closed 2026-07-30 owning contract
+    # defects no committed recording exercises any more. The reason below names
+    # what retires this row: the LAST of these two to land (hy-p8k5).
+    retirement: fix
+    beads:
+      - hy-3dtc
+      - hy-1r0h
+    # Intermittent by mechanism and measured over the corpus, not carried
+    # forward from a stability report: the reason below says the predicate
+    # "PASSES in 2 of 3 reps", and those repetitions are the in-process
+    # population that never reaches this store. What the committed runs show is
+    # one run scored and that one run exhibiting the defect.
+    shape: some
+    runs_scored: 1
+    runs_exhibiting: 1
+    reason: >-
+      the arm DOES call validate_analytics_plan on the recording in this commit,
+      and the call comes back 'unverifiable'. It sent the plan's two dataset
+      refs in the directive's asset_refs where the bundle's own request echoes
+      an empty list, so the call re-resolved to a different bundle
+      (cb-0f5046c1de99324b planned, cb-72b9b503948a2597 resolved) and the plan
+      was never judged; the arm spent its final message reporting that mismatch
+      instead of answering. This entry no longer covers a MISSING call, which is
+      what the previous reason described. hy-t3am fixed the served contract the
+      arm was reading, and with hy-3dtc and hy-1r0h also applied the predicate
+      PASSES in 2 of 3 reps -- so this entry is expected to be deleted by
+      whichever of those lands last, not by a further fix here.
+  - case_id: supply_chain_lead_time
+    predicate: no_governed_answer_without_a_governed_domain
+    # This predicate has exactly ONE failing branch, so the field cannot
+    # discriminate here and is required anyway. Stated rather than left to look
+    # like an oversight: an exemption for single-branch predicates would be a
+    # default by another name, and the count is not fixed -- the day a second
+    # branch is added, an entry with no code would have to be given one by
+    # whoever added the branch, which is the person least able to say which one
+    # this recording took.
+    code: governed_context_for_an_ungoverned_question
+    # NOT a pending fix, and hy-9lct being closed is the decision rather than
+    # rot: ADR 0016 says this entry "does not expire" and that hy-9lct "owns the
+    # record, not a pending fix". The ADR names this case and this predicate
+    # verbatim, which is what the loader checks -- a limit whose decision does
+    # not adjudicate the row would be a downgrade any ADR could rubber-stamp.
+    retirement: limit
+    adr: docs/adr/0016-declared-coverage-claim-not-question-reading.md
+    # ADR 0016 holds this one as an architectural limit rather than a flake:
+    # Hyperset never reads the question, so a coverage claim true of the domain
+    # and false of the question is served on every run. Reproducible, so `every`
+    # -- and a run that stops exhibiting it is a real change in the substrate,
+    # which is exactly what this shape refuses to absorb.
+    shape: every
+    reason: >-
+      the governed path resolved the revenue domain for a supplier-lead-time
+      question. The substrate now refuses an UNSTATED coverage claim, which is
+      what PR #103 measured; this run made a FALSE one, claiming
+      'recognized_revenue' covers supplier lead time, and no check Hyperset is
+      allowed to run can contradict it without reading the question.

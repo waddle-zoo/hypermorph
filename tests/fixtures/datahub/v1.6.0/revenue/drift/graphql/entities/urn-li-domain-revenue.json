@@ -1,0 +1,14 @@
+{
+  "data": {
+    "domain": {
+      "ownership": null,
+      "properties": {
+        "description": "Recognized revenue reporting and its governed definitions.",
+        "name": "Revenue"
+      },
+      "type": "DOMAIN",
+      "urn": "urn:li:domain:revenue"
+    }
+  },
+  "extensions": {}
+}

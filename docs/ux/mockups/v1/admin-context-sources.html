@@ -1,0 +1,16 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-admin-context-sources" class="hs-v1-page">
+  <div class="hs-v1-window">
+    <header class="hs-v1-topbar"><div class="hs-v1-brand"><div class="hs-v1-mark" aria-hidden="true">H</div><span class="hs-v1-brand-name">Hyperset</span><span class="hs-v1-badge">Admin / workspace</span></div><nav aria-label="Return to regular surfaces"><a href="#chat">Chat</a><a href="#explore">Explore</a></nav><a class="hs-v1-button" href="#overview">Workspace overview</a></header>
+    <div class="hs-v1-page-grid">
+      <aside class="hs-v1-sidebar"><div class="hs-v1-sidebar-title">Admin / workspace</div><nav aria-label="Admin navigation"><a class="hs-v1-nav-link" href="#overview">Overview</a><a class="hs-v1-nav-link" href="#users">Users &amp; roles</a><a class="hs-v1-nav-link" href="#context" aria-current="page">Context sources</a><a class="hs-v1-nav-link" href="#connections">Connections &amp; models</a><a class="hs-v1-nav-link" href="#writeback">Write-back policy</a><a class="hs-v1-nav-link" href="#audit">Audit &amp; diagnostics</a></nav></aside>
+      <main class="hs-v1-content">
+        <div class="hs-v1-heading-row"><div><div class="hs-v1-kicker">Authority</div><h1>Context sources</h1><p class="hs-v1-muted">Choose the validated snapshot Hyperset serves.</p></div><button class="hs-v1-button hs-v1-button-primary" type="button">Add source</button></div>
+        <section class="hs-v1-panel hs-v1-panel-primary"><div class="hs-v1-section-heading"><div><h2>Northstar semantic repository</h2><p class="hs-v1-muted">Primary source · refreshed 8 minutes ago</p></div><span class="hs-v1-status hs-v1-status-ready">Serving</span></div><div class="hs-v1-meta-row" style="margin-top:16px"><span class="hs-v1-muted">Repository</span><code>github.com/northstar/meaning</code></div><div class="hs-v1-meta-row" style="margin-top:8px"><span class="hs-v1-muted">Snapshot</span><span><code>main / abc1234</code> · 42 directives</span></div><div class="hs-v1-meta-row" style="margin-top:8px"><span class="hs-v1-muted">Validation</span><span>0 errors · 3 warnings</span></div><div class="hs-v1-button-row" style="margin-top:16px"><button class="hs-v1-button hs-v1-button-primary" type="button">Sync now</button><button class="hs-v1-button" type="button">View validation</button></div></section>
+        <section class="hs-v1-panel" style="margin-top:14px"><h2>Source settings</h2><form class="hs-v1-form" style="margin-top:15px"><div class="hs-v1-field"><label for="hs-v1-repo">Repository URL</label><input id="hs-v1-repo" class="hs-v1-input" type="url" value="https://github.com/northstar/meaning"></div><div class="hs-v1-form-grid"><div class="hs-v1-field"><label for="hs-v1-ref">Ref</label><input id="hs-v1-ref" class="hs-v1-input" type="text" value="main"></div><div class="hs-v1-field"><label for="hs-v1-path">Context path</label><input id="hs-v1-path" class="hs-v1-input" type="text" value="domains/"></div></div><button class="hs-v1-button hs-v1-button-primary" type="button">Save and validate</button></form></section>
+        <details class="hs-v1-details"><summary>Sync behavior</summary><p class="hs-v1-muted">New snapshots become active only after validation. If a sync fails, keep serving <code>abc1234</code> and show the failed attempt to admins.</p></details>
+      </main>
+    </div>
+  </div>
+</div>

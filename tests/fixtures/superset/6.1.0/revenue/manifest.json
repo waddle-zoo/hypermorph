@@ -1,0 +1,346 @@
+{
+  "business_answer": {
+    "approved_source": "finance_orders_daily",
+    "caveats": [
+      "Fixture recognition is not GAAP ASC 606 accounting guidance.",
+      "Do not substitute payment-event dates for order dates."
+    ],
+    "definition": "Sum gross amount less tax for completed orders, attributed by order date.",
+    "metric": "recognized_revenue",
+    "owner": "team:finance-data",
+    "required_filters": [
+      "finance_orders_daily.status = 'completed'",
+      "customer_dim.is_test = false"
+    ],
+    "required_grain": "order_date by customer_dim.region",
+    "required_join": "finance_orders_daily.customer_id = customer_dim.customer_id",
+    "review_by": "2026-10-25",
+    "validations": [
+      "recognized_revenue is non-negative",
+      "monthly totals reconcile within 1% of the fixture close value"
+    ]
+  },
+  "canonical_question": "Which source and rules should an analyst use for recognized revenue by region?",
+  "captures": {
+    "baseline": {
+      "capture_command": "make demo-capture-baseline",
+      "controlled_property_hash": "1925c8ef7c35643d0d27a57d3160d4a2af5f01de4cdc6cc9dbc72f1600f112aa",
+      "recognized_revenue_metric": {
+        "changed_on": "2026-07-25T23:41:55.740144",
+        "created_on": "2026-07-25T23:41:55.740138",
+        "currency": null,
+        "d3format": null,
+        "description": "Observed Superset metric for the canonical revenue fixture. It is not approved governed meaning.",
+        "expression": "SUM(gross_amount - tax_amount)",
+        "extra": null,
+        "id": 2,
+        "metric_name": "recognized_revenue",
+        "metric_type": null,
+        "uuid": "cb35591d-82e2-54cf-959a-c22e79e5d468",
+        "verbose_name": null,
+        "warning_text": null
+      },
+      "records": {
+        "database_detail": {
+          "bytes": 553,
+          "path": "baseline/rest/database-detail.json",
+          "sha256": "c83a0559a8294c864f80a70609f367d8b04933a5c9e0ae24e41f2d05aeba8e0a"
+        },
+        "database_list": {
+          "bytes": 2811,
+          "path": "baseline/rest/database-list.json",
+          "sha256": "e3841e186a202637d5d8e2f8d462f858bc58c7c52153cee03e6f8854dd459e0c"
+        },
+        "dataset_detail_customer_dim": {
+          "bytes": 4520,
+          "path": "baseline/rest/dataset-customer_dim-detail.json",
+          "sha256": "573845c4a06004fae23d693576560070a32b29e1e17cf1bb9d5fed9f9da3b244"
+        },
+        "dataset_detail_finance_orders_daily": {
+          "bytes": 5801,
+          "path": "baseline/rest/dataset-finance_orders_daily-detail.json",
+          "sha256": "f73b1da26e2af8380d6a28d15d68ee911d1c2cb54c218e0e5cc50a48ed279c5f"
+        },
+        "dataset_detail_raw_payments": {
+          "bytes": 6257,
+          "path": "baseline/rest/dataset-raw_payments-detail.json",
+          "sha256": "143317c56bc62319309977822d13bc563a6ec20a56e3249d942e8613bf945414"
+        },
+        "dataset_list": {
+          "bytes": 3651,
+          "path": "baseline/rest/dataset-list.json",
+          "sha256": "32ca0c8419d9caaf8e03f9ba91bf1187219260551e8067200cd2b7d3a99cc5d9"
+        },
+        "official_export": {
+          "bytes": 9477,
+          "path": "baseline/official-export.zip",
+          "sha256": "61e354c65a2bcc3184f871b595009cc2133948263381d825fee265688b70c061"
+        }
+      },
+      "transport": [
+        "official_export_zip",
+        "rest_list",
+        "rest_detail"
+      ]
+    },
+    "drift": {
+      "capture_command": "make demo-capture-drift",
+      "controlled_property_hash": "e429c98d36f8443a42f422074cc69f26726aaf584b3b519cbdbc1ef1c9c61ea0",
+      "recognized_revenue_metric": {
+        "changed_on": "2026-07-25T23:41:55.740144",
+        "created_on": "2026-07-25T23:41:55.740138",
+        "currency": null,
+        "d3format": null,
+        "description": "Observed Superset metric for the canonical revenue fixture. It is not approved governed meaning.",
+        "expression": "SUM(gross_amount)",
+        "extra": null,
+        "id": 2,
+        "metric_name": "recognized_revenue",
+        "metric_type": null,
+        "uuid": "cb35591d-82e2-54cf-959a-c22e79e5d468",
+        "verbose_name": null,
+        "warning_text": null
+      },
+      "records": {
+        "database_detail": {
+          "bytes": 553,
+          "path": "drift/rest/database-detail.json",
+          "sha256": "c83a0559a8294c864f80a70609f367d8b04933a5c9e0ae24e41f2d05aeba8e0a"
+        },
+        "database_list": {
+          "bytes": 2811,
+          "path": "drift/rest/database-list.json",
+          "sha256": "e3841e186a202637d5d8e2f8d462f858bc58c7c52153cee03e6f8854dd459e0c"
+        },
+        "dataset_detail_customer_dim": {
+          "bytes": 4520,
+          "path": "drift/rest/dataset-customer_dim-detail.json",
+          "sha256": "573845c4a06004fae23d693576560070a32b29e1e17cf1bb9d5fed9f9da3b244"
+        },
+        "dataset_detail_finance_orders_daily": {
+          "bytes": 5788,
+          "path": "drift/rest/dataset-finance_orders_daily-detail.json",
+          "sha256": "da0a53b71a9d1510522d7f4d9d91ef404e62a99072c2ae34adc8cbaae5a58431"
+        },
+        "dataset_detail_raw_payments": {
+          "bytes": 6257,
+          "path": "drift/rest/dataset-raw_payments-detail.json",
+          "sha256": "143317c56bc62319309977822d13bc563a6ec20a56e3249d942e8613bf945414"
+        },
+        "dataset_list": {
+          "bytes": 3651,
+          "path": "drift/rest/dataset-list.json",
+          "sha256": "53c93b1888d97250d67302a26f9795b04ed3ba96c0158b9e373c71618e126fa4"
+        },
+        "official_export": {
+          "bytes": 9464,
+          "path": "drift/official-export.zip",
+          "sha256": "c6041dff91d53a0eaf88d5cca7c225bdd8220c4d87941fe24738befd864ec58f"
+        }
+      },
+      "transport": [
+        "official_export_zip",
+        "rest_list",
+        "rest_detail"
+      ]
+    },
+    "restored": {
+      "capture_command": "make demo-generate-evidence",
+      "controlled_property_hash": "1925c8ef7c35643d0d27a57d3160d4a2af5f01de4cdc6cc9dbc72f1600f112aa",
+      "recognized_revenue_metric": {
+        "changed_on": "2026-07-25T23:41:55.740144",
+        "created_on": "2026-07-25T23:41:55.740138",
+        "currency": null,
+        "d3format": null,
+        "description": "Observed Superset metric for the canonical revenue fixture. It is not approved governed meaning.",
+        "expression": "SUM(gross_amount - tax_amount)",
+        "extra": null,
+        "id": 2,
+        "metric_name": "recognized_revenue",
+        "metric_type": null,
+        "uuid": "cb35591d-82e2-54cf-959a-c22e79e5d468",
+        "verbose_name": null,
+        "warning_text": null
+      },
+      "records": {
+        "database_detail": {
+          "bytes": 553,
+          "path": "restored/rest/database-detail.json",
+          "sha256": "c83a0559a8294c864f80a70609f367d8b04933a5c9e0ae24e41f2d05aeba8e0a"
+        },
+        "database_list": {
+          "bytes": 2811,
+          "path": "restored/rest/database-list.json",
+          "sha256": "e3841e186a202637d5d8e2f8d462f858bc58c7c52153cee03e6f8854dd459e0c"
+        },
+        "dataset_detail_customer_dim": {
+          "bytes": 4520,
+          "path": "restored/rest/dataset-customer_dim-detail.json",
+          "sha256": "573845c4a06004fae23d693576560070a32b29e1e17cf1bb9d5fed9f9da3b244"
+        },
+        "dataset_detail_finance_orders_daily": {
+          "bytes": 5801,
+          "path": "restored/rest/dataset-finance_orders_daily-detail.json",
+          "sha256": "c031dde007722f0b1bee0e7e759e0ca909ed628dc55482b4ff7ef29450d67043"
+        },
+        "dataset_detail_raw_payments": {
+          "bytes": 6257,
+          "path": "restored/rest/dataset-raw_payments-detail.json",
+          "sha256": "143317c56bc62319309977822d13bc563a6ec20a56e3249d942e8613bf945414"
+        },
+        "dataset_list": {
+          "bytes": 3651,
+          "path": "restored/rest/dataset-list.json",
+          "sha256": "83d022660b6b99c58d0c9fa4aba474922f6fd7b959470f865bc246d5c06da573"
+        },
+        "official_export": {
+          "bytes": 9477,
+          "path": "restored/official-export.zip",
+          "sha256": "c13be3a9b360cab9f54c36840c12796b48896fc004f425da5a161e9693e30ed7"
+        }
+      },
+      "transport": [
+        "official_export_zip",
+        "rest_list",
+        "rest_detail"
+      ]
+    }
+  },
+  "controlled_drift": {
+    "affected_product_family": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+    "baseline_property_hash": "1925c8ef7c35643d0d27a57d3160d4a2af5f01de4cdc6cc9dbc72f1600f112aa",
+    "baseline_value": "SUM(gross_amount - tax_amount)",
+    "command": "make demo-generate-evidence",
+    "drift_property_hash": "e429c98d36f8443a42f422074cc69f26726aaf584b3b519cbdbc1ef1c9c61ea0",
+    "drift_value": "SUM(gross_amount)",
+    "expected_connector_change_category": "updated",
+    "expected_processor_finding_type": "metric_expression_drift",
+    "manual_steps": [
+      "make demo-drift-apply",
+      "make demo-capture-drift",
+      "make demo-drift-restore"
+    ],
+    "metric_uuid": "cb35591d-82e2-54cf-959a-c22e79e5d468",
+    "property": "metrics[recognized_revenue].expression",
+    "restored_property_hash": "1925c8ef7c35643d0d27a57d3160d4a2af5f01de4cdc6cc9dbc72f1600f112aa",
+    "source_asset_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+  },
+  "domain": "revenue",
+  "expected_approved_outcome": {
+    "approved_source_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+    "prohibited_source_uuids": [
+      "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4"
+    ],
+    "required_disclosures": [
+      "exact observed version",
+      "exact governed version",
+      "human review decision",
+      "freshness",
+      "prohibited source",
+      "caveat",
+      "validation",
+      "Hyperset did not execute or validate SQL/results"
+    ],
+    "required_provenance_references": [
+      "source_snapshot",
+      "observed_asset_version",
+      "review_decision",
+      "governed_context_version"
+    ],
+    "resolution_status": "governed"
+  },
+  "expected_observed_behavior": {
+    "baseline_first_sync": "one immutable observed version per captured source asset",
+    "drift_sync": "new immutable version for the approved-candidate dataset",
+    "repeat_baseline_sync": "no new material version",
+    "stable_identity": "native_uuid"
+  },
+  "fixture_id": "canonical-recognized-revenue-by-region-v1",
+  "governed_context_proposal": {
+    "approval_decision": null,
+    "expected_reviewer_edit": null,
+    "lifecycle": "candidate",
+    "observed_source_refs": [
+      {
+        "native_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+        "role": "approved_candidate"
+      },
+      {
+        "native_uuid": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+        "role": "required_dimension"
+      },
+      {
+        "native_uuid": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+        "role": "prohibited_alternative"
+      }
+    ],
+    "path": "tests/fixtures/superset/6.1.0/revenue/proposal.yaml",
+    "review_state": "pending_human_review"
+  },
+  "schema_version": 1,
+  "secret_scan": {
+    "credential_labels_checked": [
+      "SUPERSET_ADMIN_PASSWORD",
+      "ANALYTICS_DB_PASSWORD",
+      "SUPERSET_DB_PASSWORD"
+    ],
+    "evidence_path": "secret-scan.json",
+    "evidence_sha256": "05139cc5304ca5899b163cc26ca2d49f1ddb3576dc1d3e837e67a8ea0377bb2b",
+    "findings": [],
+    "status": "passed"
+  },
+  "source_contract": {
+    "config_identity": {
+      "bootstrap": "docker/superset/demo_bootstrap.py",
+      "metadata_database": "postgres:16",
+      "profile": "demo"
+    },
+    "database": {
+      "display_name": "analytics",
+      "native_id": 1,
+      "native_uuid": "191e8838-4a5c-5f3f-9d53-71f52f56f7f8"
+    },
+    "datasets": [
+      {
+        "display_name": "finance_orders_daily",
+        "native_id": 1,
+        "native_uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+        "product_family_key_inputs": {
+          "source_instance": "local-superset-6.1.0",
+          "source_kind": "dataset",
+          "source_native_identity": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+        },
+        "role": "approved_candidate",
+        "source_kind": "dataset"
+      },
+      {
+        "display_name": "customer_dim",
+        "native_id": 2,
+        "native_uuid": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+        "product_family_key_inputs": {
+          "source_instance": "local-superset-6.1.0",
+          "source_kind": "dataset",
+          "source_native_identity": "5bcf01e3-3f70-50d2-bb31-562b627b09b8"
+        },
+        "role": "required_dimension",
+        "source_kind": "dataset"
+      },
+      {
+        "display_name": "raw_payments",
+        "native_id": 3,
+        "native_uuid": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+        "product_family_key_inputs": {
+          "source_instance": "local-superset-6.1.0",
+          "source_kind": "dataset",
+          "source_native_identity": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4"
+        },
+        "role": "prohibited_alternative",
+        "source_kind": "dataset"
+      }
+    ],
+    "image": "apache/superset:6.1.0",
+    "image_digest": "sha256:fb3464528ec7076f91195f0ff7835755aa023e281f1bb78a84782ce7a36b3705",
+    "source_system": "apache-superset",
+    "source_version": "6.1.0"
+  }
+}

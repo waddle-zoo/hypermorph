@@ -1,0 +1,9 @@
+# gastown watcher example config
+# Most values can also be passed via environment variables.
+GH_REPO: waddle-zoo/hyperset
+RIG_NAME: hyperset
+RIG_PATH: $HOME/gt/hyperset
+LABEL_FILTER: "ready-for-gastown"
+INBOX_DIR: requirements/inbox
+LOG_FILE: $HOME/.gastown-watcher.log
+INTERVAL: 1800

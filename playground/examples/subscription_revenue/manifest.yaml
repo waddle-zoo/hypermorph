@@ -1,0 +1,83 @@
+schema_version: 1
+domain: subscription_revenue
+parent: revenue
+title: Recurring subscription revenue
+owners:
+  - team:finance-data
+context_doc: context.md
+evals: evals.yaml
+definitions:
+  - term: recurring_revenue
+    statement: >-
+      Normalized subscription revenue attributable to the period from active
+      recurring plans, excluding one-time and usage charges.
+  - term: deferred_recurring_revenue
+    statement: >-
+      Recurring revenue booked but not yet recognized, carried as a liability
+      until the straight-line schedule releases it into the period.
+  - term: subscription_churn_revenue
+    statement: >-
+      Recurring revenue lost from subscriptions cancelled or downgraded in the
+      period, measured against the prior period's active base.
+  - term: net_recurring_revenue
+    statement: >-
+      Recurring revenue in the period less refunds and credits attributed to
+      recurring charges.
+approved_sources:
+  - ref: table:postgres:analytics.public.subscription_schedule
+    role: primary
+    reason: Recurring recognition and booking schedule that defines the subscription base.
+  - ref: table:postgres:analytics.public.deferred_revenue_schedule
+    role: supporting
+    reason: Deferred recurring balances and the straight-line release schedule.
+  - ref: table:postgres:analytics.public.refunds_ledger
+    role: supporting
+    reason: Issued refunds and credits that net against recognized recurring revenue.
+  - ref: table:postgres:analytics.public.customer_dim
+    role: required_dimension
+    reason: Only source of the customer attributes recurring cohorts are grouped by.
+  - ref: table:postgres:analytics.public.product_dim
+    role: required_dimension
+    reason: Plan and product attributes that identify a recurring subscription.
+prohibited_sources:
+  - ref: table:postgres:analytics.public.stripe_events_raw
+    reason: Raw gateway events double-count partial captures and mix one-time with recurring.
+fields:
+  - name: recurring_revenue
+    source_ref: table:postgres:analytics.public.subscription_schedule
+    expression: SUM(monthly_amount)
+  - name: deferred_recurring_revenue
+    source_ref: table:postgres:analytics.public.deferred_revenue_schedule
+    expression: SUM(deferred_amount)
+  - name: subscription_churn_revenue
+    source_ref: table:postgres:analytics.public.subscription_schedule
+    expression: SUM(CASE WHEN status = 'cancelled' THEN monthly_amount ELSE 0 END)
+  - name: refund_adjustment
+    source_ref: table:postgres:analytics.public.refunds_ledger
+    expression: SUM(refund_amount)
+  - name: plan
+    source_ref: table:postgres:analytics.public.product_dim
+    expression: product_dim.plan_name
+joins:
+  - from: subscription_schedule.customer_id
+    to: customer_dim.customer_id
+    type: inner
+  - from: subscription_schedule.product_id
+    to: product_dim.product_id
+    type: inner
+  - from: subscription_schedule.subscription_id
+    to: deferred_revenue_schedule.subscription_id
+    type: left
+filters:
+  - subscription_schedule.is_active = true
+  - customer_dim.is_test = false
+  - subscription_schedule.plan_type = 'recurring'
+grain: subscription_month by product_dim.plan_name
+checks:
+  - recurring_revenue is non-negative
+  - deferred releases reconcile to recognized recurring revenue within rounding
+  - net_recurring_revenue never exceeds recurring_revenue
+caveats:
+  - Fixture recognition is a demo, not GAAP ASC 606 accounting guidance.
+  - One-time and usage charges are out of scope for recurring revenue.
+  - Churn is measured against the prior period's active base, not lifetime.

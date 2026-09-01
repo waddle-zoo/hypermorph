@@ -1,0 +1,33 @@
+# Constants the version-collision gate compares across open heads.
+#
+# A constant belongs on this list if a CLIENT can observe it, or if a stored
+# row's meaning depends on it: these are the numbers a caller reads off an
+# answer, or a reader recovers a row's shape from, so two heads shipping two
+# meanings under one number is a defect somebody sees. An internal counter
+# nobody is served and nothing persists is not one of these.
+#
+# Fields, tab separated:
+#   name        the identifier as it appears in the file
+#   path        the file holding it, relative to the repository root
+#   extraction  how to read its value; see `supported_extraction` in the gate
+#   register    a set or mapping whose MEMBERSHIP is part of this number's
+#               meaning, or `-`
+#   caveat      what the gate does NOT establish for this constant, or `-`
+#
+# The register field exists because a value comparison is blind to membership.
+# Under hq-6htz case 3 as amended 2026-07-30, a PERSISTED-ONLY register gaining
+# a member MOVES the number -- a stored row carries no record of which register
+# was in force when it was written, and the version on that row is that record,
+# so declining to move it would be the number failing its one job. A served
+# register is the other way: ADR 0018 decision 5 declines the move, but only
+# where default-deny is published for that field, which is a reader-side rule
+# with a live exchange to refuse. Rows have no such moment. So the gate refuses
+# rather than reports when a declared register gains a member and the number
+# stands still.
+#
+# The caveat field exists because the gate's certainty is not uniform across
+# these rows, and a gate that claims more than it established is the failure
+# this whole instrument was built against. It is printed whenever the gate
+# speaks about that constant, and by --help.
+SCHEMA_VERSION	hyperset/bundle/schema.py	bare_int	-	-
+RULE_VERSION	hyperset/processor/rules.py	bare_int	RULE_VERSIONS	A RULE_VERSION collision needs the DIFF read, not just the value: the number describes a JUDGEMENT rather than a payload shape, so two unrelated judgement changes are both honestly "version 2 of this rule" and prefix-relatedness cannot separate them.

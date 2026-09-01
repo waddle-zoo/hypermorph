@@ -1,0 +1,15 @@
+datasets:
+  - table_name: "2026 Revenue View"
+    database: warehouse
+    sql: "select * from orders"
+    columns:
+      - column_name: "Customer Region"
+        type: VARCHAR
+        groupby: true
+      - column_name: "legacy flag"
+        is_active: false
+    metrics:
+      - metric_name: "Total Orders!"
+        expression: "COUNT(*)"
+    owners:
+      - 42

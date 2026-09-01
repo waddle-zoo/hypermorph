@@ -1,0 +1,42 @@
+databases:
+  - database_name: warehouse
+
+datasets:
+  - table_name: Orders
+    schema: public
+    database:
+      database_name: warehouse
+    description: Customer orders.
+    columns:
+      - column_name: order_id
+        verbose_name: Order ID
+        type: INTEGER
+      - column_name: order_date
+        type: TIMESTAMP
+        is_dttm: true
+    metrics:
+      - metric_name: total_revenue
+        verbose_name: Total Revenue
+        expression: SUM(amount)
+        metric_type: sum
+    owners:
+      - username: bsovran
+
+charts:
+  - slice_name: orders_by_region
+    description: Revenue by region.
+    viz_type: echarts_timeseries_bar
+    datasource_name: public.orders
+    owners:
+      - username: bsovran
+    certified_by: data-platform
+    last_saved_at: "2026-07-20T00:00:00Z"
+    last_saved_by: bsovran
+
+dashboards:
+  - dashboard_title: Q3 Review
+    description: Quarterly review dashboard.
+    position_json: '{"ROOT_ID": {"type": "ROOT", "children": ["CHART-1"]}, "CHART-1": {"type": "CHART", "meta": {"chartId": 1, "sliceName": "orders_by_region"}}}'
+    owners:
+      - bsovran
+    published: true

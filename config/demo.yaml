@@ -1,0 +1,5 @@
+# The demo overlay. The demo's playground-on posture is an EXPLICIT selection --
+# `make up-demo` sets HYPERSET_CONFIG=config/demo.yaml -- never an implicit fallback the
+# loader reaches for. Layered over config/base.yaml (which stays auth-off, loopback).
+playground:
+  enabled: true

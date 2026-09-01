@@ -1,0 +1,25 @@
+databases: []
+datasets: []
+
+charts:
+  - name: "<unknown>"
+    dataset: null
+    description: ""
+    viz_type: null
+    owners: []
+    certified: false
+    last_saved_at: null
+    last_saved_by: null
+
+dashboards:
+  - name: "<unknown>"
+    label: ""
+    description: ""
+    charts: []
+    owners: []
+    published: false
+    certified: false
+
+warnings_contain:
+  - "database missing database_name"
+  - "no_metric_expression"

@@ -1,0 +1,175 @@
+schema_version: 1
+domain: revenue
+title: Recognized revenue by region
+owners:
+  - team:finance-data
+context_doc: context.md
+evals: evals.yaml
+definitions:
+  - term: recognized_revenue
+    statement: >-
+      Revenue on the date an order becomes completed, net of tax, excluding
+      internal and test accounts.
+  - term: net_revenue
+    statement: >-
+      Recognized revenue in the period less refunds and credits, net of tax.
+  - term: gross_bookings
+    statement: >-
+      Total contract value booked in the period, before any revenue is
+      recognized against it.
+  - term: deferred_revenue
+    statement: >-
+      Booked revenue not yet recognized, carried as a liability until the
+      recognition schedule releases it.
+  - term: monthly_recurring_revenue
+    statement: >-
+      Normalized recurring subscription revenue attributable to the month,
+      excluding one-time charges.
+  - term: refund_rate
+    statement: >-
+      Refunded and credited amount divided by gross recognized revenue for the
+      period.
+  - term: customer_churn_revenue
+    statement: >-
+      Recurring revenue lost from subscriptions cancelled in the period.
+approved_sources:
+  - ref: table:postgres:analytics.public.finance_orders_daily
+    role: primary
+    reason: Completed orders with the tax split the definition requires.
+    bi_override:
+      ref: superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2
+      reason: This demo intentionally governs the published revenue dataset.
+  - ref: table:postgres:analytics.public.customer_dim
+    role: required_dimension
+    reason: Only source of the customer region attribute.
+    bi_override:
+      ref: superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8
+      reason: This demo intentionally governs the published customer dataset.
+  - ref: table:postgres:analytics.public.finance_invoices
+    role: supporting
+    reason: Invoice-level recognition detail behind the daily order rollup.
+  - ref: table:postgres:analytics.public.subscription_schedule
+    role: supporting
+    reason: Recurring recognition and booking schedule for subscriptions.
+    facets:
+      grain: subscription_id by schedule_month
+      classification: internal
+      freshness:
+        cadence: daily
+        max_staleness: 48h
+      lineage:
+        produced_by: subscription_billing_export
+      checks:
+        - name: active_schedule_has_monthly_amount
+          description: Every active schedule row carries a monthly_amount.
+          severity: warning
+  - ref: table:postgres:analytics.public.refunds_ledger
+    role: supporting
+    reason: Issued refunds and credits that net against recognized revenue.
+  - ref: table:postgres:analytics.public.deferred_revenue_schedule
+    role: supporting
+    reason: Deferred balances and the straight-line release schedule.
+  - ref: table:postgres:analytics.public.fx_rates_daily
+    role: supporting
+    reason: Daily close rates used to normalize non-USD revenue.
+    facets:
+      grain: currency by rate_date
+      classification: internal
+      freshness:
+        cadence: daily
+        max_staleness: 48h
+      lineage:
+        produced_by: fx_rate_loader
+        upstream:
+          - table:postgres:raw.public.ecb_reference_rates
+      checks:
+        - name: usd_rate_positive
+          description: Every close rate is strictly positive.
+          severity: error
+        - name: one_rate_per_currency_day
+          description: Exactly one row per currency and rate_date.
+          severity: error
+  - ref: table:postgres:analytics.public.product_dim
+    role: required_dimension
+    reason: Product and plan attributes for revenue by product.
+  - ref: table:postgres:analytics.public.sales_region_dim
+    role: required_dimension
+    reason: Sales-region hierarchy for regional roll-ups.
+prohibited_sources:
+  - ref: table:postgres:analytics.public.raw_payments
+    reason: Double-counts partial captures and includes non-completed transactions.
+    bi_override:
+      ref: superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4
+      reason: This legacy BI dataset exposes the prohibited payment-event model.
+  - ref: table:postgres:analytics.public.stripe_events_raw
+    reason: Raw gateway events double-count partial captures and authorizations.
+  - ref: table:postgres:analytics.public.forecast_pipeline_snapshots
+    reason: Pipeline forecast, not recognized revenue; mixes projection with actuals.
+fields:
+  - name: recognized_revenue
+    source_ref: table:postgres:analytics.public.finance_orders_daily
+    expression: SUM(gross_amount - tax_amount)
+  - name: region
+    source_ref: table:postgres:analytics.public.customer_dim
+    expression: customer_dim.region
+  - name: net_revenue
+    source_ref: table:postgres:analytics.public.refunds_ledger
+    expression: recognized_revenue - SUM(refund_amount)
+  - name: gross_bookings
+    source_ref: table:postgres:analytics.public.subscription_schedule
+    expression: SUM(contract_value)
+  - name: deferred_revenue
+    source_ref: table:postgres:analytics.public.deferred_revenue_schedule
+    expression: SUM(deferred_amount)
+  - name: monthly_recurring_revenue
+    source_ref: table:postgres:analytics.public.subscription_schedule
+    expression: SUM(monthly_amount)
+  - name: product
+    source_ref: table:postgres:analytics.public.product_dim
+    expression: product_dim.product_name
+  - name: sales_region
+    source_ref: table:postgres:analytics.public.sales_region_dim
+    expression: sales_region_dim.region_name
+  - name: usd_rate
+    source_ref: table:postgres:analytics.public.fx_rates_daily
+    expression: fx_rates_daily.usd_rate
+joins:
+  - from: finance_orders_daily.customer_id
+    to: customer_dim.customer_id
+    type: inner
+  - from: finance_orders_daily.product_id
+    to: product_dim.product_id
+    type: inner
+  - from: customer_dim.sales_region_id
+    to: sales_region_dim.region_id
+    type: inner
+  - from: finance_orders_daily.order_id
+    to: finance_invoices.order_id
+    type: left
+  - from: finance_orders_daily.subscription_id
+    to: subscription_schedule.subscription_id
+    type: left
+  - from: finance_orders_daily.order_id
+    to: refunds_ledger.order_id
+    type: left
+  - from: finance_orders_daily.currency
+    to: fx_rates_daily.currency
+    type: inner
+filters:
+  - finance_orders_daily.status = 'completed'
+  - customer_dim.is_test = false
+  - finance_orders_daily.is_internal = false
+  - refunds_ledger.status = 'settled'
+  - subscription_schedule.is_active = true
+grain: order_date by customer_dim.region
+checks:
+  - recognized_revenue is non-negative
+  - monthly totals reconcile within 1% of the fixture close value
+  - net_revenue never exceeds recognized_revenue
+  - deferred_revenue plus recognized_revenue reconciles to gross_bookings within rounding
+  - every recognized order maps to exactly one product and one sales region
+caveats:
+  - Fixture recognition is not GAAP ASC 606 accounting guidance.
+  - Do not substitute payment-event dates for order dates.
+  - Currency normalization uses daily close rates, not intraday spot rates.
+  - Deferred schedules are straight-line and not usage-based.

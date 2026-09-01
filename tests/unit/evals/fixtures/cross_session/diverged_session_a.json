@@ -1,0 +1,813 @@
+{
+  "schema_version": 1,
+  "arm": "raw_baseline",
+  "case_id": "supply_chain_lead_time",
+  "task_version": "revenue@sha256:e2b11d6c46721e01",
+  "git_commit": "b10d7527274290926045b75c36807056646e0c77",
+  "recorded_at": "2026-07-28T15:35:27.875242+00:00",
+  "disclosure": "This report scored a COMMITTED RECORDING of an arm, not a live model run. It proves the harness, the scorers and the recorded run's scores. It does not prove that a live model still passes; the scheduled live arms are what check that (ADR 0013).",
+  "pins": {
+    "model": "qwen2.5:7b",
+    "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+    "quantization": "Q4_K_M",
+    "ollama_version": "0.32.4",
+    "context_window": 32768,
+    "prompt_hash": "sha256:9587b6e85fbf492f",
+    "tools_hash": "sha256:8d926d3c0f1dc696",
+    "seed": 20260728,
+    "temperature": 0.0
+  },
+  "source_refs": [
+    "dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+    "dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2"
+  ],
+  "trace": {
+    "question": "What is our average supplier lead time by warehouse over the last quarter?",
+    "prompt_hash": "sha256:9587b6e85fbf492f",
+    "tools_hash": "sha256:8d926d3c0f1dc696",
+    "model": "qwen2.5:7b",
+    "provenance": {
+      "runtime": "openai_agents_sdk",
+      "model": "qwen2.5:7b",
+      "seed": 20260728,
+      "temperature": 0.0,
+      "instructions_hash": "sha256:9587b6e85fbf492f",
+      "tools_hash": "sha256:8d926d3c0f1dc696",
+      "allocated_context_window": 32768,
+      "declared_context_window": null,
+      "max_turns": 8
+    },
+    "steps": [
+      {
+        "kind": "tool_call",
+        "at": "2026-07-28T15:34:33.830463+00:00",
+        "detail": {
+          "operation": "list_raw_assets",
+          "params": {
+            "asset_type": "dataset",
+            "limit": 25,
+            "offset": 0
+          }
+        },
+        "summary": "call list_raw_assets"
+      },
+      {
+        "kind": "tool_result",
+        "at": "2026-07-28T15:34:33.864631+00:00",
+        "detail": {
+          "operation": "list_raw_assets",
+          "result": {
+            "assets": [
+              {
+                "external_id": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                "asset_type": "dataset"
+              },
+              {
+                "external_id": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                "asset_type": "dataset"
+              },
+              {
+                "external_id": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                "asset_type": "dataset"
+              }
+            ],
+            "counts": {
+              "dataset": 3
+            },
+            "truncated": false
+          },
+          "retryable_warnings": null
+        },
+        "summary": "list_raw_assets answered"
+      },
+      {
+        "kind": "tool_call",
+        "at": "2026-07-28T15:34:36.319762+00:00",
+        "detail": {
+          "operation": "list_raw_assets",
+          "params": {
+            "asset_type": "dataset",
+            "limit": 25,
+            "offset": 0
+          }
+        },
+        "summary": "call list_raw_assets"
+      },
+      {
+        "kind": "tool_result",
+        "at": "2026-07-28T15:34:36.340611+00:00",
+        "detail": {
+          "operation": "list_raw_assets",
+          "result": {
+            "assets": [
+              {
+                "external_id": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                "asset_type": "dataset"
+              },
+              {
+                "external_id": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                "asset_type": "dataset"
+              },
+              {
+                "external_id": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                "asset_type": "dataset"
+              }
+            ],
+            "counts": {
+              "dataset": 3
+            },
+            "truncated": false
+          },
+          "retryable_warnings": null
+        },
+        "summary": "list_raw_assets answered"
+      },
+      {
+        "kind": "tool_call",
+        "at": "2026-07-28T15:34:46.648989+00:00",
+        "detail": {
+          "operation": "get_raw_asset",
+          "params": {
+            "external_id": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+            "asset_type": "dataset"
+          }
+        },
+        "summary": "call get_raw_asset"
+      },
+      {
+        "kind": "tool_result",
+        "at": "2026-07-28T15:34:46.685043+00:00",
+        "detail": {
+          "operation": "get_raw_asset",
+          "result": {
+            "external_id": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+            "asset_type": "dataset",
+            "last_seen_at": "2026-07-28T15:34:26.531690+00:00",
+            "raw_payload": {
+              "id": 1,
+              "sql": null,
+              "uid": "1__table",
+              "url": "/tablemodelview/edit/1",
+              "kind": "physical",
+              "name": "public.finance_orders_daily",
+              "uuid": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+              "extra": null,
+              "offset": 0,
+              "owners": [
+                {
+                  "id": 1,
+                  "last_name": "Admin",
+                  "first_name": "Superset"
+                }
+              ],
+              "schema": "public",
+              "catalog": "analytics",
+              "columns": [
+                {
+                  "id": 1,
+                  "type": "VARCHAR",
+                  "uuid": "5eb6ec21-50b9-476c-bedb-502899514891",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:55.587481",
+                  "created_on": "2026-07-25T23:41:55.587477",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "order_id",
+                  "description": null,
+                  "type_generic": 1,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 2,
+                  "type": "VARCHAR",
+                  "uuid": "8f7098e8-5e88-4585-8f87-be706396d22d",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:55.587507",
+                  "created_on": "2026-07-25T23:41:55.587506",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "customer_id",
+                  "description": null,
+                  "type_generic": 1,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 3,
+                  "type": "DATE",
+                  "uuid": "887e8753-39fd-4f0e-ab15-28b708701f3d",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": true,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:55.587517",
+                  "created_on": "2026-07-25T23:41:55.587515",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "order_date",
+                  "description": null,
+                  "type_generic": 2,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 4,
+                  "type": "VARCHAR",
+                  "uuid": "8bdc4a42-6270-4025-ae00-baf45445e096",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:55.587524",
+                  "created_on": "2026-07-25T23:41:55.587523",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "status",
+                  "description": null,
+                  "type_generic": 1,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 5,
+                  "type": "NUMERIC(12, 2)",
+                  "uuid": "1d439a72-875b-4b84-86b3-486271515a9c",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:55.587531",
+                  "created_on": "2026-07-25T23:41:55.587530",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "gross_amount",
+                  "description": null,
+                  "type_generic": 0,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 6,
+                  "type": "NUMERIC(12, 2)",
+                  "uuid": "7edce80b-b046-4043-a186-e89874d3576d",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:55.587539",
+                  "created_on": "2026-07-25T23:41:55.587539",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "tax_amount",
+                  "description": null,
+                  "type_generic": 0,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 7,
+                  "type": "VARCHAR",
+                  "uuid": "4140aaa0-4943-4848-b4f5-96189c123fb9",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:55.587550",
+                  "created_on": "2026-07-25T23:41:55.587549",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "currency",
+                  "description": null,
+                  "type_generic": 1,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                }
+              ],
+              "metrics": [
+                {
+                  "id": 2,
+                  "uuid": "cb35591d-82e2-54cf-959a-c22e79e5d468",
+                  "extra": null,
+                  "currency": null,
+                  "d3format": null,
+                  "changed_on": "2026-07-25T23:41:55.740144",
+                  "created_on": "2026-07-25T23:41:55.740138",
+                  "expression": "SUM(gross_amount - tax_amount)",
+                  "description": "Observed Superset metric for the canonical revenue fixture. It is not approved governed meaning.",
+                  "metric_name": "recognized_revenue",
+                  "metric_type": null,
+                  "verbose_name": null,
+                  "warning_text": null
+                }
+              ],
+              "database": {
+                "id": 1,
+                "uuid": "191e8838-4a5c-5f3f-9d53-71f52f56f7f8",
+                "backend": "postgresql",
+                "database_name": "analytics",
+                "allow_multi_catalog": false
+              },
+              "changed_by": {
+                "last_name": "Admin",
+                "first_name": "Superset"
+              },
+              "changed_on": "2026-07-25T23:51:59.838313",
+              "created_by": {
+                "last_name": "Admin",
+                "first_name": "Superset"
+              },
+              "created_on": "2026-07-25T23:41:55.537460",
+              "table_name": "finance_orders_daily",
+              "description": "Approved-candidate order source for recognized revenue. Source metadata is observed evidence only; approval requires a Hyperset ReviewDecision.",
+              "select_star": "SELECT\n  *\nFROM public.finance_orders_daily\nLIMIT 100",
+              "verbose_map": {
+                "status": "status",
+                "currency": "currency",
+                "order_id": "order_id",
+                "order_date": "order_date",
+                "tax_amount": "tax_amount",
+                "__timestamp": "Time",
+                "customer_id": "customer_id",
+                "gross_amount": "gross_amount",
+                "recognized_revenue": "recognized_revenue"
+              },
+              "cache_timeout": null,
+              "main_dttm_col": "order_date",
+              "column_formats": {},
+              "is_sqllab_view": false,
+              "datasource_name": "finance_orders_daily",
+              "datasource_type": "table",
+              "template_params": null,
+              "time_grain_sqla": [
+                [
+                  "PT1S",
+                  "Second"
+                ],
+                [
+                  "PT5S",
+                  "5 second"
+                ],
+                [
+                  "PT30S",
+                  "30 second"
+                ],
+                [
+                  "PT1M",
+                  "Minute"
+                ],
+                [
+                  "PT5M",
+                  "5 minute"
+                ],
+                [
+                  "PT10M",
+                  "10 minute"
+                ],
+                [
+                  "PT15M",
+                  "15 minute"
+                ],
+                [
+                  "PT30M",
+                  "30 minute"
+                ],
+                [
+                  "PT1H",
+                  "Hour"
+                ],
+                [
+                  "P1D",
+                  "Day"
+                ],
+                [
+                  "P1W",
+                  "Week"
+                ],
+                [
+                  "P1M",
+                  "Month"
+                ],
+                [
+                  "P3M",
+                  "Quarter"
+                ],
+                [
+                  "P1Y",
+                  "Year"
+                ]
+              ],
+              "default_endpoint": null,
+              "granularity_sqla": [
+                [
+                  "order_date",
+                  "order_date"
+                ]
+              ],
+              "order_by_choices": [
+                [
+                  "[\"currency\", true]",
+                  "currency [asc]"
+                ],
+                [
+                  "[\"currency\", false]",
+                  "currency [desc]"
+                ],
+                [
+                  "[\"customer_id\", true]",
+                  "customer_id [asc]"
+                ],
+                [
+                  "[\"customer_id\", false]",
+                  "customer_id [desc]"
+                ],
+                [
+                  "[\"gross_amount\", true]",
+                  "gross_amount [asc]"
+                ],
+                [
+                  "[\"gross_amount\", false]",
+                  "gross_amount [desc]"
+                ],
+                [
+                  "[\"order_date\", true]",
+                  "order_date [asc]"
+                ],
+                [
+                  "[\"order_date\", false]",
+                  "order_date [desc]"
+                ],
+                [
+                  "[\"order_id\", true]",
+                  "order_id [asc]"
+                ],
+                [
+                  "[\"order_id\", false]",
+                  "order_id [desc]"
+                ],
+                [
+                  "[\"status\", true]",
+                  "status [asc]"
+                ],
+                [
+                  "[\"status\", false]",
+                  "status [desc]"
+                ],
+                [
+                  "[\"tax_amount\", true]",
+                  "tax_amount [asc]"
+                ],
+                [
+                  "[\"tax_amount\", false]",
+                  "tax_amount [desc]"
+                ]
+              ],
+              "normalize_columns": false,
+              "changed_on_humanized": "now",
+              "created_on_humanized": "now",
+              "currency_code_column": null,
+              "filter_select_enabled": true,
+              "is_managed_externally": false,
+              "fetch_values_predicate": null,
+              "always_filter_main_dttm": false
+            }
+          },
+          "retryable_warnings": null
+        },
+        "summary": "get_raw_asset answered"
+      },
+      {
+        "kind": "tool_call",
+        "at": "2026-07-28T15:35:10.414498+00:00",
+        "detail": {
+          "operation": "get_raw_asset",
+          "params": {
+            "external_id": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+            "asset_type": "dataset"
+          }
+        },
+        "summary": "call get_raw_asset"
+      },
+      {
+        "kind": "tool_result",
+        "at": "2026-07-28T15:35:10.465667+00:00",
+        "detail": {
+          "operation": "get_raw_asset",
+          "result": {
+            "external_id": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+            "asset_type": "dataset",
+            "last_seen_at": "2026-07-28T15:34:26.552714+00:00",
+            "raw_payload": {
+              "id": 2,
+              "sql": null,
+              "uid": "2__table",
+              "url": "/tablemodelview/edit/2",
+              "kind": "physical",
+              "name": "public.customer_dim",
+              "uuid": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+              "extra": null,
+              "offset": 0,
+              "owners": [
+                {
+                  "id": 1,
+                  "last_name": "Admin",
+                  "first_name": "Superset"
+                }
+              ],
+              "schema": "public",
+              "catalog": "analytics",
+              "columns": [
+                {
+                  "id": 8,
+                  "type": "VARCHAR",
+                  "uuid": "67bacbf4-fc60-42b8-a0de-4cbb7c717faf",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:56.019493",
+                  "created_on": "2026-07-25T23:41:56.019489",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "customer_id",
+                  "description": null,
+                  "type_generic": 1,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 9,
+                  "type": "DATE",
+                  "uuid": "6b6ceebf-013b-43f0-a463-5f6b96a6622f",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": true,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:56.019513",
+                  "created_on": "2026-07-25T23:41:56.019512",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "signup_date",
+                  "description": null,
+                  "type_generic": 2,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 10,
+                  "type": "VARCHAR",
+                  "uuid": "909dacd0-813d-4ba6-8740-68b39ddb406b",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:56.019520",
+                  "created_on": "2026-07-25T23:41:56.019520",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "region",
+                  "description": null,
+                  "type_generic": 1,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 11,
+                  "type": "VARCHAR",
+                  "uuid": "b7db6ac9-c799-4c16-831f-8f1ed7ee0ff4",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:56.019527",
+                  "created_on": "2026-07-25T23:41:56.019527",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "segment",
+                  "description": null,
+                  "type_generic": 1,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                },
+                {
+                  "id": 12,
+                  "type": "BOOLEAN",
+                  "uuid": "8a0166fb-bbb0-4639-8746-a0103ce8ff7a",
+                  "extra": null,
+                  "groupby": true,
+                  "is_dttm": false,
+                  "is_active": true,
+                  "changed_on": "2026-07-25T23:41:56.019534",
+                  "created_on": "2026-07-25T23:41:56.019533",
+                  "expression": null,
+                  "filterable": true,
+                  "column_name": "is_test",
+                  "description": null,
+                  "type_generic": 3,
+                  "verbose_name": null,
+                  "advanced_data_type": null,
+                  "python_date_format": null
+                }
+              ],
+              "metrics": [
+                {
+                  "id": 3,
+                  "uuid": "e2e52784-84a9-4828-97b8-c0d54dc906a4",
+                  "extra": null,
+                  "currency": null,
+                  "d3format": null,
+                  "changed_on": "2026-07-25T23:41:56.018625",
+                  "created_on": "2026-07-25T23:41:56.018622",
+                  "expression": "COUNT(*)",
+                  "description": null,
+                  "metric_name": "count",
+                  "metric_type": "count",
+                  "verbose_name": "COUNT(*)",
+                  "warning_text": null
+                }
+              ],
+              "database": {
+                "id": 1,
+                "uuid": "191e8838-4a5c-5f3f-9d53-71f52f56f7f8",
+                "backend": "postgresql",
+                "database_name": "analytics",
+                "allow_multi_catalog": false
+              },
+              "changed_by": {
+                "last_name": "Admin",
+                "first_name": "Superset"
+              },
+              "changed_on": "2026-07-25T23:42:48.855228",
+              "created_by": {
+                "last_name": "Admin",
+                "first_name": "Superset"
+              },
+              "created_on": "2026-07-25T23:41:55.995282",
+              "table_name": "customer_dim",
+              "description": "Customer region and test-account flags required by the revenue proposal.",
+              "select_star": "SELECT\n  *\nFROM public.customer_dim\nLIMIT 100",
+              "verbose_map": {
+                "count": "COUNT(*)",
+                "region": "region",
+                "is_test": "is_test",
+                "segment": "segment",
+                "__timestamp": "Time",
+                "customer_id": "customer_id",
+                "signup_date": "signup_date"
+              },
+              "cache_timeout": null,
+              "main_dttm_col": "signup_date",
+              "column_formats": {},
+              "is_sqllab_view": false,
+              "datasource_name": "customer_dim",
+              "datasource_type": "table",
+              "template_params": null,
+              "time_grain_sqla": [
+                [
+                  "PT1S",
+                  "Second"
+                ],
+                [
+                  "PT5S",
+                  "5 second"
+                ],
+                [
+                  "PT30S",
+                  "30 second"
+                ],
+                [
+                  "PT1M",
+                  "Minute"
+                ],
+                [
+                  "PT5M",
+                  "5 minute"
+                ],
+                [
+                  "PT10M",
+                  "10 minute"
+                ],
+                [
+                  "PT15M",
+                  "15 minute"
+                ],
+                [
+                  "PT30M",
+                  "30 minute"
+                ],
+                [
+                  "PT1H",
+                  "Hour"
+                ],
+                [
+                  "P1D",
+                  "Day"
+                ],
+                [
+                  "P1W",
+                  "Week"
+                ],
+                [
+                  "P1M",
+                  "Month"
+                ],
+                [
+                  "P3M",
+                  "Quarter"
+                ],
+                [
+                  "P1Y",
+                  "Year"
+                ]
+              ],
+              "default_endpoint": null,
+              "granularity_sqla": [
+                [
+                  "signup_date",
+                  "signup_date"
+                ]
+              ],
+              "order_by_choices": [
+                [
+                  "[\"customer_id\", true]",
+                  "customer_id [asc]"
+                ],
+                [
+                  "[\"customer_id\", false]",
+                  "customer_id [desc]"
+                ],
+                [
+                  "[\"is_test\", true]",
+                  "is_test [asc]"
+                ],
+                [
+                  "[\"is_test\", false]",
+                  "is_test [desc]"
+                ],
+                [
+                  "[\"region\", true]",
+                  "region [asc]"
+                ],
+                [
+                  "[\"region\", false]",
+                  "region [desc]"
+                ],
+                [
+                  "[\"segment\", true]",
+                  "segment [asc]"
+                ],
+                [
+                  "[\"segment\", false]",
+                  "segment [desc]"
+                ],
+                [
+                  "[\"signup_date\", true]",
+                  "signup_date [asc]"
+                ],
+                [
+                  "[\"signup_date\", false]",
+                  "signup_date [desc]"
+                ]
+              ],
+              "normalize_columns": false,
+              "changed_on_humanized": "now",
+              "created_on_humanized": "now",
+              "currency_code_column": null,
+              "filter_select_enabled": true,
+              "is_managed_externally": false,
+              "fetch_values_predicate": null,
+              "always_filter_main_dttm": false
+            }
+          },
+          "retryable_warnings": null
+        },
+        "summary": "get_raw_asset answered"
+      },
+      {
+        "kind": "planner_message",
+        "at": "2026-07-28T15:35:27.837091+00:00",
+        "detail": {
+          "text": "The raw payload for the dataset with external ID `5bcf01e3-3f70-50d2-bb31-562b627b09b8` contains the following columns and metrics:\n\n### Columns:\n- customer_id (VARCHAR)\n- signup_date (DATE)\n- region (VARCHAR)\n- segment (VARCHAR)\n- is_test (BOOLEAN)\n\n### Metrics:\n- count: COUNT(*)\n\nThis dataset `public.customer_dim` provides information about customers but does not include any columns or metrics related to supplier lead times by warehouse.\n\nLet's fetch the raw payload for the last dataset.\n"
+        },
+        "summary": "The raw payload for the dataset with external ID `5bcf01e3-3f70-50d2-bb31-562b627b09b8` contains the following columns and metrics:\n\n### Columns:\n- customer_id (VARCHAR)\n- signup_date (DATE)\n- region (VARCHAR)\n- segment (VARCHAR)\n- is_test (BOOLEAN)\n\n### Metrics:\n- count: COUNT(*)\n\nThis dataset `public.customer_dim` provides information about customers but does not include any columns or metrics related to supplier lead times by warehouse.\n\nLet's fetch the raw payload for the last dataset.\n"
+      }
+    ]
+  }
+}

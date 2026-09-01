@@ -1,0 +1,126 @@
+# Customer-owned supply-chain context for the playground demo.
+schema_version: 1
+domain: supply_chain
+title: Supplier lead time by warehouse
+owners:
+  - team:operations-data
+context_doc: context.md
+evals: evals.yaml
+definitions:
+  - term: supplier_lead_time
+    statement: >-
+      Average calendar days from purchase-order creation to receipt at the
+      warehouse, for received orders only.
+  - term: on_time_delivery_rate
+    statement: >-
+      Share of received orders whose receipt date is on or before the promised
+      date.
+  - term: fill_rate
+    statement: >-
+      Received quantity divided by ordered quantity across purchase-order
+      lines.
+  - term: inventory_days_on_hand
+    statement: >-
+      Average days of demand covered by on-hand inventory at the warehouse.
+  - term: backorder_rate
+    statement: >-
+      Share of order lines not fully received by the promised date.
+  - term: supplier_defect_rate
+    statement: >-
+      Received units rejected on inspection divided by units received.
+approved_sources:
+  - ref: table:postgres:analytics.public.purchase_orders
+    role: primary
+    reason: The order lifecycle contains both ordered and received dates.
+  - ref: table:postgres:analytics.public.warehouse_dim
+    role: required_dimension
+    reason: Only source of the governed warehouse grouping.
+  - ref: table:postgres:analytics.public.goods_receipts
+    role: supporting
+    reason: Line-level receipts with received quantity and inspection outcome.
+  - ref: table:postgres:analytics.public.po_lines
+    role: supporting
+    reason: Ordered quantity per line, the denominator of fill rate.
+  - ref: table:postgres:analytics.public.suppliers_dim
+    role: required_dimension
+    reason: Governed supplier grouping and active status.
+  - ref: table:postgres:analytics.public.inventory_snapshots
+    role: supporting
+    reason: End-of-day on-hand inventory for days-on-hand.
+  - ref: table:postgres:analytics.public.product_dim
+    role: required_dimension
+    reason: Product attributes for lead time by category.
+  - ref: table:postgres:analytics.public.carrier_dim
+    role: required_dimension
+    reason: Governed carrier grouping for inbound freight.
+prohibited_sources:
+  - ref: table:postgres:analytics.public.shipment_events
+    reason: Partial shipments and retries distort order-level lead time.
+  - ref: table:postgres:analytics.public.manual_tracker_sheet
+    reason: Analyst-maintained spreadsheet with no lineage or validation.
+  - ref: table:postgres:analytics.public.edi_raw_feed
+    reason: Raw EDI messages duplicate receipts and lack governed keys.
+fields:
+  - name: supplier_lead_time
+    source_ref: table:postgres:analytics.public.purchase_orders
+    expression: AVG(received_date - ordered_date)
+  - name: warehouse
+    source_ref: table:postgres:analytics.public.warehouse_dim
+    expression: warehouse_dim.warehouse_name
+  - name: on_time_delivery_rate
+    source_ref: table:postgres:analytics.public.goods_receipts
+    expression: AVG(CASE WHEN received_date <= promised_date THEN 1 ELSE 0 END)
+  - name: fill_rate
+    source_ref: table:postgres:analytics.public.goods_receipts
+    expression: SUM(received_qty) / NULLIF(SUM(ordered_qty), 0)
+  - name: inventory_days_on_hand
+    source_ref: table:postgres:analytics.public.inventory_snapshots
+    expression: AVG(on_hand_units / NULLIF(daily_demand_units, 0))
+  - name: supplier
+    source_ref: table:postgres:analytics.public.suppliers_dim
+    expression: suppliers_dim.supplier_name
+  - name: product
+    source_ref: table:postgres:analytics.public.product_dim
+    expression: product_dim.product_name
+  - name: carrier
+    source_ref: table:postgres:analytics.public.carrier_dim
+    expression: carrier_dim.carrier_name
+joins:
+  - from: purchase_orders.warehouse_id
+    to: warehouse_dim.warehouse_id
+    type: inner
+  - from: purchase_orders.supplier_id
+    to: suppliers_dim.supplier_id
+    type: inner
+  - from: purchase_orders.po_id
+    to: po_lines.po_id
+    type: left
+  - from: po_lines.product_id
+    to: product_dim.product_id
+    type: inner
+  - from: goods_receipts.po_id
+    to: purchase_orders.po_id
+    type: left
+  - from: inventory_snapshots.warehouse_id
+    to: warehouse_dim.warehouse_id
+    type: inner
+  - from: warehouse_dim.carrier_id
+    to: carrier_dim.carrier_id
+    type: inner
+filters:
+  - purchase_orders.status = 'received'
+  - purchase_orders.is_cancelled = false
+  - goods_receipts.received_qty > 0
+  - suppliers_dim.is_active = true
+grain: warehouse and quarter
+checks:
+  - supplier_lead_time is non-negative
+  - every received order has an ordered date and a received date
+  - on_time_delivery_rate is between 0 and 1
+  - fill_rate is between 0 and 1
+  - every received order maps to exactly one supplier and one warehouse
+caveats:
+  - This demo measure is not an SLA or procurement policy.
+  - Do not substitute shipment-event timestamps for order receipt dates.
+  - Inventory snapshots are end-of-day, not real-time.
+  - Carrier assignment reflects the planned carrier, not the actual carrier.

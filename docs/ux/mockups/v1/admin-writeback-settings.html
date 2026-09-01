@@ -1,0 +1,15 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-admin-writeback-settings" class="hs-v1-page">
+  <div class="hs-v1-window">
+    <header class="hs-v1-topbar"><div class="hs-v1-brand"><div class="hs-v1-mark" aria-hidden="true">H</div><span class="hs-v1-brand-name">Hyperset</span><span class="hs-v1-badge">Admin / workspace</span></div><nav aria-label="Return to regular surfaces"><a href="#chat">Chat</a><a href="#explore">Explore</a></nav><button class="hs-v1-button hs-v1-button-primary" type="button">Save policy</button></header>
+    <main class="hs-v1-main">
+      <div class="hs-v1-heading-row"><div><div class="hs-v1-kicker">Policy</div><h1>Write-back settings</h1><p class="hs-v1-muted">Define what agents may prepare and who owns approval.</p></div><span class="hs-v1-status hs-v1-status-ready">Proposal-only default</span></div>
+      <div class="hs-v1-content-grid">
+        <section class="hs-v1-panel"><h2>Git proposal target</h2><form class="hs-v1-form" style="margin-top:16px"><div class="hs-v1-field"><label for="hs-v1-git-repo">Repository</label><input id="hs-v1-git-repo" class="hs-v1-input" type="url" value="https://github.com/northstar/meaning"></div><div class="hs-v1-form-grid"><div class="hs-v1-field"><label for="hs-v1-git-base">Base branch</label><input id="hs-v1-git-base" class="hs-v1-input" type="text" value="main"></div><div class="hs-v1-field"><label for="hs-v1-git-path">Change path</label><input id="hs-v1-git-path" class="hs-v1-input" type="text" value="domains/definitions/"></div></div><div class="hs-v1-field"><label for="hs-v1-codeowners">Required reviewer group</label><select id="hs-v1-codeowners" class="hs-v1-select"><option>Analytics governance</option><option>Finance domain owners</option></select></div></form></section>
+        <section class="hs-v1-panel hs-v1-panel-primary"><h2>Agent permissions</h2><div class="hs-v1-check-list" style="margin-top:12px"><div class="hs-v1-check-item"><div class="hs-v1-check-copy"><strong>Create review task</strong><span>When evidence is sufficient.</span></div><span class="hs-v1-status hs-v1-status-ready">On</span></div><div class="hs-v1-check-item"><div class="hs-v1-check-copy"><strong>Draft proposed diff</strong><span>Must include evidence and source commit.</span></div><span class="hs-v1-status hs-v1-status-ready">On</span></div><div class="hs-v1-check-item"><div class="hs-v1-check-copy"><strong>Approve or merge</strong><span>Never delegated to the agent.</span></div><span class="hs-v1-status hs-v1-status-danger">Never</span></div></div></section>
+      </div>
+      <details class="hs-v1-details"><summary>Reviewer routing and Slack</summary><p class="hs-v1-muted">Route by domain owner, then fall back to Analytics governance. Notify <code>#analytics-governance</code> when a task is created, a PR opens, or a sync fails. GitHub remains the approval record.</p></details>
+    </main>
+  </div>
+</div>

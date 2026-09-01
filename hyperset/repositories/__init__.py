@@ -1,0 +1,67 @@
+"""Narrow, capability-oriented repository contracts over the Postgres
+persistence layer (hy-gh-26). The domain/service layer imports from here,
+never from `hyperset.db` directly."""
+
+from hyperset.repositories.dto import (
+    ConnectionRecord,
+    ContextSnapshotRecord,
+    ContextSourceRecord,
+    EvaluationCaseRecord,
+    EvaluationRunRecord,
+    FindingRecord,
+    GovernedContextRecord,
+    GovernedContextVersionRecord,
+    ObservedAssetRecord,
+    ObservedAssetVersionRecord,
+    ProcessorRunRecord,
+    ReviewApprovalResult,
+    ReviewDecisionRecord,
+    ReviewTaskRecord,
+    SyncRunRecord,
+)
+from hyperset.repositories.errors import (
+    DuplicateReviewTaskError,
+    NotFoundError,
+    OptimisticConcurrencyError,
+    RepositoryError,
+)
+from hyperset.repositories.protocols import (
+    ConnectionRepository,
+    ContextRepository,
+    EvaluationRepository,
+    GovernedContextRepository,
+    ObservedAssetRepository,
+    ProcessorRepository,
+    ReviewRepository,
+    SyncRepository,
+)
+
+__all__ = [
+    "ConnectionRepository",
+    "ContextRepository",
+    "SyncRepository",
+    "ObservedAssetRepository",
+    "GovernedContextRepository",
+    "ReviewRepository",
+    "EvaluationRepository",
+    "ProcessorRepository",
+    "ConnectionRecord",
+    "ContextSourceRecord",
+    "ContextSnapshotRecord",
+    "SyncRunRecord",
+    "ObservedAssetRecord",
+    "ObservedAssetVersionRecord",
+    "GovernedContextRecord",
+    "GovernedContextVersionRecord",
+    "ReviewTaskRecord",
+    "ReviewDecisionRecord",
+    "ReviewApprovalResult",
+    "EvaluationCaseRecord",
+    "EvaluationRunRecord",
+    "ProcessorRunRecord",
+    "FindingRecord",
+    "RepositoryError",
+    "NotFoundError",
+    "OptimisticConcurrencyError",
+    "DuplicateReviewTaskError",
+]

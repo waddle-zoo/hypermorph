@@ -1,0 +1,9 @@
+dashboards:
+  - dashboard_title: Ops Overview
+    description: ""
+    position_json: '{"ROOT_ID": {"type": "ROOT", "children": ["CHART-1", "CHART-2", "HEADER-1"]}, "CHART-1": {"type": "CHART", "meta": {"sliceName": "signups_daily"}}, "CHART-2": {"type": "CHART", "meta": {"chartId": 77}}, "HEADER-1": {"type": "HEADER"}}'
+    owners:
+      - alice
+      - bob
+    published: false
+    certified_by: data-platform

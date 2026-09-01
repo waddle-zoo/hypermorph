@@ -1,0 +1,19 @@
+{
+  "data": {
+    "glossaryTerm": {
+      "domain": null,
+      "hierarchicalName": "recognized_revenue",
+      "name": "recognized_revenue",
+      "ownership": null,
+      "properties": {
+        "definition": "Revenue recognized on completed, non-refunded orders, excluding tax and test accounts.",
+        "name": "Recognized Revenue",
+        "sourceRef": null,
+        "termSource": "INTERNAL"
+      },
+      "type": "GLOSSARY_TERM",
+      "urn": "urn:li:glossaryTerm:recognized_revenue"
+    }
+  },
+  "extensions": {}
+}

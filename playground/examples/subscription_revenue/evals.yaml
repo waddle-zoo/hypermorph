@@ -1,0 +1,15 @@
+schema_version: 1
+cases:
+  - name: recurring_revenue_by_plan
+    question: >-
+      Which source and rules should an analyst use for recurring subscription
+      revenue by plan?
+    critical: true
+    expected:
+      approved_source_ref: table:postgres:analytics.public.subscription_schedule
+      prohibited_source_ref: table:postgres:analytics.public.stripe_events_raw
+      required_filters:
+        - subscription_schedule.is_active = true
+        - subscription_schedule.plan_type = 'recurring'
+      required_join: subscription_schedule.product_id = product_dim.product_id
+      grain: subscription_month by product_dim.plan_name

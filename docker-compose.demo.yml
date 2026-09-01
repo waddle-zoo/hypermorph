@@ -1,0 +1,42 @@
+# Demo-only playground configuration.
+#
+# The base docker-compose.yml intentionally contains no built-in agents. This
+# override is used only by `make up-demo`; production deployments must provide
+# their own HYPERSET_PLAYGROUND_AGENTS_JSON through deployment configuration.
+services:
+  api:
+    environment:
+      # The demo selects the playground-on posture as an EXPLICIT config overlay
+      # (hy-7h00, ADR-0035): base.yaml stays auth-off/loopback/playground-off, and the
+      # demo layers config/demo.yaml over it. Set now so the selection is explicit;
+      # the layered loader reads it once call sites are wired through (slice hy-tc4o).
+      # HYPERSET_PLAYGROUND_ENABLED stays the live control until then.
+      HYPERSET_CONFIG: "config/demo.yaml"
+      HYPERSET_PLAYGROUND_ENABLED: "true"
+      HYPERSET_PLAYGROUND_AGENTS_JSON: >-
+        [{"value":"default","label":"Default","description":"A general-purpose agent that can use governed context, connected sources, and read-only warehouse tools.","instruction":"Answer the user's question directly. Discover and use governed context, inspect connected source metadata, use the read-only warehouse tool for data questions, and clearly separate governed evidence from observed results and uncertainty."},{"value":"analyst","label":"Revenue analyst","description":"Answers with governed definitions, evidence, and warehouse results.","instruction":"Lead with the answer, then show the evidence and the calculation."},{"value":"reviewer","label":"Adversarial reviewer","description":"Checks the proposed answer for stale, conflicting, or unsupported claims.","instruction":"Be skeptical: call out caveats, conflicts, and validation gaps before concluding."},{"value":"explainer","label":"Context explainer","description":"Makes the resolved graph and source relationships easy to understand.","instruction":"Explain why each governed source and relationship matters in plain language."}]
+      HYPERSET_PLAYGROUND_DEFAULT_AGENT: "default"
+      HYPERSET_PLAYGROUND_DEFAULT_MODEL: ${HYPERSET_PLAYGROUND_DEFAULT_MODEL:-gpt-5.6-luna}
+      # A URL write-back target (e.g. the demo GitHub repo) reads its token from
+      # the SERVER environment by the NAME the admin configures as the token
+      # reference (hy-eji4). Point that reference at HYPERSET_WRITEBACK_TOKEN and
+      # supply the secret from the host env; the token is never stored in the
+      # config row or sent to the browser. Empty by default -- a URL target then
+      # fails closed on Propose to Git until the secret is provided.
+      HYPERSET_WRITEBACK_TOKEN: "${HYPERSET_WRITEBACK_TOKEN:-}"
+    volumes:
+      # Proposal-only write-back needs a WRITABLE target (hy-o1xfx). The base api
+      # mounts the local Git-owned source read-only (`.:/repo:ro`, fetch-only). In the
+      # demo the write-back target IS that same local playground repo, so
+      # propose_review_to_git could not push its ephemeral proposal branch into a
+      # read-only mount -- the push failed with "remote unpack failed: unable to create
+      # temporary object directory" (a Read-only file system), leaving the review task
+      # open (fail-closed, no authority written). This overlays JUST the
+      # playground-contexts subpath read-WRITE (the rest of `/repo` stays read-only, so
+      # the governed source is still never written directly), letting the proposal branch
+      # land in the host-bootstrapped repo -- the local-target case where the pushed branch
+      # IS the proposal (no PR to open). Compose appends this to the base api volumes; the
+      # bind source exists because `make up-demo` runs `playground-contexts` (host bootstrap)
+      # before it starts `api`. Production NEVER does this: its write-back target is a remote
+      # URL reached with a token, never a local read-write bind.
+      - ./.runtime/playground-contexts:/repo/.runtime/playground-contexts

@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-playground-chat-thread" class="hs-v1-page">
+  <div class="hs-v1-window hs-v1-shell-window">
+    <aside class="hs-v1-rail" aria-label="Hyperset navigation">
+      <a class="hs-v1-rail-brand" href="#home"><span class="hs-v1-mark" aria-hidden="true">H</span><span>Hyperset<small>Northstar workspace</small></span></a>
+      <div class="hs-v1-rail-section">
+        <a class="hs-v1-rail-link hs-v1-rail-link-primary" href="#new-chat">＋ <span>New chat</span></a>
+        <a class="hs-v1-rail-link" href="#home">⌂ <span>Home</span></a>
+        <a class="hs-v1-rail-link" href="#explore">⌕ <span>Explore context</span></a>
+      </div>
+      <div class="hs-v1-rail-section">
+        <div class="hs-v1-rail-label">Recent chats</div>
+        <ul class="hs-v1-rail-recent"><li><a href="#revenue" aria-current="page">Recognized revenue</a></li><li><a href="#active-customer">Active customer definition</a></li><li><a href="#marketing-leads">Marketing leads</a></li></ul>
+      </div>
+      <div class="hs-v1-rail-spacer"></div>
+      <div class="hs-v1-rail-section">
+        <a class="hs-v1-rail-link" href="#get-started">▣ <span>Connect MCP</span></a>
+        <a class="hs-v1-rail-link" href="#settings">⚙ <span>Settings</span></a>
+        <a class="hs-v1-rail-link" href="#help">? <span>Help</span></a>
+      </div>
+      <div class="hs-v1-rail-divider"></div>
+      <button class="hs-v1-rail-profile" type="button"><span class="hs-v1-avatar" aria-hidden="true">SP</span><span class="hs-v1-rail-profile-copy"><strong>Sam Patel</strong><span>Explorer · account</span></span><span aria-hidden="true">···</span></button>
+    </aside>
+
+    <main class="hs-v1-shell-main hs-v1-chat-main">
+      <header class="hs-v1-chat-header"><div><div class="hs-v1-chat-title-row"><h1>Recognized revenue</h1><span class="hs-v1-inline-state hs-v1-inline-state-ready">Ready</span></div><p>Hyperset analyst · answers use Northstar context</p></div><details class="hs-v1-run-settings" open><summary class="hs-v1-run-settings-trigger"><span class="hs-v1-run-settings-summary"><strong>Run settings</strong><span>Hyperset analyst · GPT-5.6 Luna · Governed only</span></span><span aria-hidden="true">⌄</span></summary><div class="hs-v1-run-settings-popover"><div class="hs-v1-run-settings-heading"><strong>Next message</strong><span>Previous answers keep their own settings.</span></div><label class="hs-v1-run-settings-field"><span>Agent</span><select><option>Hyperset analyst · workspace default</option><option>Revenue analyst</option></select></label><label class="hs-v1-run-settings-field"><span>Model</span><select><option>GPT-5.6 Luna · OpenAI</option><option>Workspace default</option></select></label><fieldset class="hs-v1-run-policy"><legend>Context policy</legend><label class="hs-v1-run-policy-option"><input type="radio" name="hs-v1-context-policy" checked><span><strong>Governed only</strong><small>Answer from Git-owned context. Default.</small></span></label><label class="hs-v1-run-policy-option"><input type="radio" name="hs-v1-context-policy"><span><strong>Governed + observed</strong><small>Include connected-system evidence; it may be stale or conflict.</small></span></label></fieldset><div class="hs-v1-run-settings-footer">Applies to the next message · current thread</div></div></details></header>
+
+      <div class="hs-v1-chat-transcript" role="log" aria-label="Conversation transcript">
+        <article class="hs-v1-chat-message hs-v1-chat-message-user"><p>What was recognized revenue in Canada last quarter?</p></article>
+        <article class="hs-v1-chat-message hs-v1-chat-message-assistant"><span class="hs-v1-chat-message-label">Hyperset analyst</span><p>I found the governed definition for recognized revenue. It covers revenue recognized when the service obligation is fulfilled, with quarterly reporting grain.</p><div class="hs-v1-chat-trust"><div class="hs-v1-chat-trust-line"><span class="hs-v1-inline-state hs-v1-inline-state-warning">Governed with warning</span><span class="hs-v1-small">Git <code>main@abc1234</code> · GPT-5.6 Luna</span></div><p class="hs-v1-chat-trust-note">The observed metric applies a region filter that the governed definition does not state as a default rule.</p><div class="hs-v1-chat-trust-actions"><a href="#context-bundle">View context</a><a href="#explore">Search context</a><a href="#review">Ask a reviewer</a></div></div></article>
+      </div>
+
+      <form class="hs-v1-chat-composer"><div class="hs-v1-composer-box"><textarea id="hs-v1-chat-input" class="hs-v1-textarea" aria-label="Message" placeholder="Ask a follow-up question…"></textarea><div class="hs-v1-composer-toolbar"><div class="hs-v1-inline-actions"><button class="hs-v1-composer-icon" type="button" aria-label="Add context">＋</button><a class="hs-v1-button hs-v1-button-quiet" href="#context-bundle">⌕ Search context</a></div><button class="hs-v1-button hs-v1-button-primary hs-v1-composer-send" type="button" aria-label="Send message">↑</button></div></div><div class="hs-v1-composer-note"><span>Enter to send · Shift + Enter for a new line</span><span>Run settings apply to the next message</span></div></form>
+    </main>
+  </div>
+</div>
