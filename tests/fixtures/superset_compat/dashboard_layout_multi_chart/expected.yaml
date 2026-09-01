@@ -1,0 +1,18 @@
+databases: []
+datasets: []
+charts: []
+
+dashboards:
+  - name: Ops Overview
+    label: Ops Overview
+    description: ""
+    charts:
+      - signups_daily
+      - "77"
+    owners:
+      - alice
+      - bob
+    published: false
+    certified: true
+
+warnings_contain: []

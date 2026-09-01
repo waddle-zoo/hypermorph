@@ -1,0 +1,13 @@
+schema_version: 1
+cases:
+  - name: recognized_revenue_by_region
+    question: Which source and rules should an analyst use for recognized revenue by region?
+    critical: true
+    expected:
+      approved_source_ref: table:postgres:analytics.public.finance_orders_daily
+      prohibited_source_ref: table:postgres:analytics.public.raw_payments
+      required_filters:
+        - finance_orders_daily.status = 'completed'
+        - customer_dim.is_test = false
+      required_join: finance_orders_daily.customer_id = customer_dim.customer_id
+      grain: order_date by customer_dim.region

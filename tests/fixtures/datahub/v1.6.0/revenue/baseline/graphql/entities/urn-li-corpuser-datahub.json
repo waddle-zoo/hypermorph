@@ -1,0 +1,18 @@
+{
+  "data": {
+    "corpUser": {
+      "properties": {
+        "active": true,
+        "departmentName": null,
+        "displayName": "DataHub",
+        "email": null,
+        "title": "DataHub"
+      },
+      "status": null,
+      "type": "CORP_USER",
+      "urn": "urn:li:corpuser:datahub",
+      "username": "datahub"
+    }
+  },
+  "extensions": {}
+}

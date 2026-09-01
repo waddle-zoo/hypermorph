@@ -1,0 +1,54 @@
+databases: []
+
+datasets:
+  - version: 1
+    status: draft
+    changed_by: null
+    changed_at: null
+    change_reason: null
+    owner_ref:
+      - type: user
+        id: "42"
+        role: owner
+    name: x_2026_revenue_view
+    label: "2026 Revenue View"
+    description: ""
+    data_source: "warehouse.2026 Revenue View"
+    sql: "select * from orders"
+    entity: null
+    columns:
+      - name: customer_region
+        label: ""
+        type: varchar
+        description: ""
+        expression: null
+        semantic_type: dimension
+        hidden: false
+      - name: legacy_flag
+        label: ""
+        type: string
+        description: ""
+        expression: null
+        semantic_type: null
+        hidden: true
+    metrics:
+      - version: 1
+        status: draft
+        changed_by: null
+        changed_at: null
+        change_reason: null
+        owner_ref: []
+        name: total_orders
+        label: ""
+        description: ""
+        expression: "COUNT(*)"
+        type: sum
+        dataset: null
+        depends_on: []
+        terms: []
+    dimensions: []
+    tags: []
+
+charts: []
+dashboards: []
+warnings_contain: []

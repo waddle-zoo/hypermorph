@@ -1,0 +1,10 @@
+# Manual operator config for scripts/gh-to-gastown-sync.sh. This file does not
+# install, enable, or imply a watcher/daemon. Most values can also be passed via
+# environment variables.
+GH_REPO: waddle-zoo/hyperset
+RIG_NAME: hyperset
+RIG_PATH: $HOME/gt/hyperset
+LABEL_FILTER: ""
+INBOX_DIR: requirements/inbox
+LOG_FILE: $HOME/.gastown-watcher.log
+INTERVAL: 1800

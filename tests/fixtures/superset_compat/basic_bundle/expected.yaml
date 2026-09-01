@@ -1,0 +1,75 @@
+databases:
+  - warehouse
+
+datasets:
+  - version: 1
+    status: draft
+    changed_by: null
+    changed_at: null
+    change_reason: null
+    owner_ref:
+      - type: user
+        id: bsovran
+        role: owner
+    name: orders
+    label: Orders
+    description: Customer orders.
+    data_source: warehouse.public.Orders
+    sql: null
+    entity: null
+    columns:
+      - name: order_id
+        label: Order ID
+        type: integer
+        description: ""
+        expression: null
+        semantic_type: null
+        hidden: false
+      - name: order_date
+        label: ""
+        type: timestamp
+        description: ""
+        expression: null
+        semantic_type: time
+        hidden: false
+    metrics:
+      - version: 1
+        status: draft
+        changed_by: null
+        changed_at: null
+        change_reason: null
+        owner_ref: []
+        name: total_revenue
+        label: Total Revenue
+        description: ""
+        expression: SUM(amount)
+        type: sum
+        dataset: null
+        depends_on: []
+        terms: []
+    dimensions: []
+    tags: []
+
+charts:
+  - name: orders_by_region
+    dataset: public.orders
+    description: Revenue by region.
+    viz_type: echarts_timeseries_bar
+    owners:
+      - bsovran
+    certified: true
+    last_saved_at: "2026-07-20T00:00:00Z"
+    last_saved_by: bsovran
+
+dashboards:
+  - name: Q3 Review
+    label: Q3 Review
+    description: Quarterly review dashboard.
+    charts:
+      - orders_by_region
+    owners:
+      - bsovran
+    published: true
+    certified: false
+
+warnings_contain: []

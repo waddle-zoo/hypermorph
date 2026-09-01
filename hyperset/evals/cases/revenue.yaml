@@ -1,0 +1,73 @@
+# The locked cases, human-owned (GitHub #25).
+#
+# Hyperset does not generate the exam it is graded against, so this file is
+# edited by a person and never by a run. Every ref below is an identifier that
+# exists in the pinned sources -- Superset 6.1.0 dataset UUIDs and DataHub
+# v1.6.0 URNs -- and every expectation is checkable from a trace without a
+# model reading it.
+#
+# WHAT IS DELIBERATELY NOT HERE: the domain an arm should resolve is scorer-side
+# only. `question` is the whole of what an arm receives. A case that handed the
+# domain to the arm would prove that a model can read a bundle somebody else
+# chose, which is the opposite of what GitHub #70 asks.
+schema_version: 1
+suite: revenue
+cases:
+  - id: revenue_by_region
+    family: governed_fetch
+    question: >-
+      What is recognized revenue by customer region? Give me the plan I should
+      run -- sources, fields, joins, filters and grain -- and check it against
+      the governed context before you answer.
+    expected_domain: revenue
+    # The UUID rather than the governed ref, because both arms must be able to
+    # produce it: the governed arm cites `superset:dataset:<uuid>`, the raw arm
+    # sees the same dataset in raw Superset metadata under the same UUID. A
+    # scorer keyed to the governed prefix would score the substrate rather than
+    # the answer, and arm 2 would fail it by construction.
+    must_cite:
+      - ae48881d-334f-54a7-94e8-1ffcc73866e2
+      - 5bcf01e3-3f70-50d2-bb31-562b627b09b8
+    must_not_cite:
+      - 6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4
+    # The half a raw-metadata arm cannot get from metadata. Superset's own
+    # payloads say a `gross_amount` column exists; only the governed context
+    # says revenue is recognized net of tax, on completed orders, excluding
+    # test accounts. Exact strings as the human-owned manifest writes them.
+    must_state:
+      - SUM(gross_amount - tax_amount)
+      - status = 'completed'
+      - is_test = false
+    requires_plan_validation: true
+    reason: >-
+      The primary source carries the tax split the definition requires and the
+      dimension source is the only region attribute; the prohibited dataset
+      double-counts partial captures.
+
+  - id: supply_chain_lead_time
+    family: no_match
+    question: >-
+      What is our average supplier lead time by warehouse over the last quarter?
+    expected_domain: null
+    must_cite: []
+    # ONLY the prohibited dataset, and the first draft of this case got it
+    # wrong: it listed the two approved revenue sources here too, on the theory
+    # that naming them for a supply-chain question is substitution. Measured
+    # against a real run, that punished the correct behaviour -- the raw arm
+    # enumerated the three datasets it had fetched, said none of them carries a
+    # supplier or warehouse column, and concluded nothing covers the question.
+    # Ruling a source OUT names it. A predicate that cannot tell citing from
+    # eliminating scores an honest refusal as a violation, so this now holds
+    # what stays wrong to name in any answer: the prohibited source.
+    #
+    # What remains unscored here is whether the arm SAID nothing covers the
+    # question, which is prose. The governed arm has a structural check for it
+    # -- no resolve may return governed context -- and for the raw arm this is
+    # blind human review, as #25 intends for judgements a token cannot settle.
+    must_not_cite:
+      - 6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4
+    requires_plan_validation: false
+    reason: >-
+      The only governed domain is revenue. An arm must report that nothing
+      governs supplier lead time rather than answering from a neighbouring
+      domain.

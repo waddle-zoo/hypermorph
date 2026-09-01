@@ -1,0 +1,736 @@
+{
+  "schema_version": 1,
+  "arm": "governed",
+  "case_id": "revenue_by_region",
+  "task_version": "revenue@sha256:e2b11d6c46721e01",
+  "git_commit": "0c7d1803f98f323bd981e7631c278f3350db8ca8",
+  "recorded_at": "2026-08-01T04:21:06.191412+00:00",
+  "disclosure": "This report scored a COMMITTED RECORDING of an arm, not a live model run. It proves the harness, the scorers and the recorded run's scores. It does not prove that a live model still passes; the scheduled live arms are what check that (ADR 0013).",
+  "pins": {
+    "model": "qwen2.5:7b",
+    "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+    "quantization": "Q4_K_M",
+    "ollama_version": "0.32.4",
+    "context_window": 32768,
+    "prompt_hash": "sha256:b16998b299c0837a",
+    "tools_hash": "sha256:fe930a003b731211",
+    "seed": 20260728,
+    "temperature": 0.0
+  },
+  "source_refs": [
+    "datahub:glossary_term:urn:li:glossaryTerm:recognized_revenue",
+    "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+    "superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+    "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2"
+  ],
+  "trace": {
+    "question": "What is recognized revenue by customer region? Give me the plan I should run -- sources, fields, joins, filters and grain -- and check it against the governed context before you answer.",
+    "prompt_hash": "sha256:b16998b299c0837a",
+    "tools_hash": "sha256:fe930a003b731211",
+    "model": "qwen2.5:7b",
+    "provenance": {
+      "runtime": "openai_agents_sdk",
+      "model": "qwen2.5:7b",
+      "seed": 20260728,
+      "temperature": 0.0,
+      "instructions_hash": "sha256:b16998b299c0837a",
+      "tools_hash": "sha256:fe930a003b731211",
+      "allocated_context_window": 32768,
+      "declared_context_window": null,
+      "max_turns": 8
+    },
+    "steps": [
+      {
+        "kind": "tool_call",
+        "at": "2026-08-01T04:18:41.442480+00:00",
+        "detail": {
+          "operation": "list_context_catalog",
+          "params": {}
+        },
+        "summary": "call list_context_catalog"
+      },
+      {
+        "kind": "tool_result",
+        "at": "2026-08-01T04:18:41.869341+00:00",
+        "detail": {
+          "operation": "list_context_catalog",
+          "result": {
+            "schema_version": 6,
+            "generated_at": "2026-08-01T04:18:41.869202+00:00",
+            "page": {
+              "limit": 50,
+              "offset": 0,
+              "domain_count": 1,
+              "next_offset": null,
+              "truncated": [],
+              "recovery": null
+            },
+            "domains": [
+              {
+                "domain": "revenue",
+                "title": "Recognized revenue by region",
+                "context_authority": {
+                  "type": "git",
+                  "repository": "/private/var/folders/qq/014ff8013g96knsyp4vcct_80000gn/T/pytest-of-brandonsovran/pytest-2888/test_a_live_arm_answers_and_is0/customer-repo",
+                  "ref": "main",
+                  "path": "domains/revenue",
+                  "commit_sha": "1db3e8cf64c9297eb6473dae1eb08ec52db05eac",
+                  "context_snapshot_id": "ctxsnap-7050c6828b5b"
+                },
+                "counts": {
+                  "concepts": 1,
+                  "documents": 1,
+                  "approved_source_refs": 2,
+                  "prohibited_source_refs": 1,
+                  "evidence_refs": 4,
+                  "owner_refs": 1
+                },
+                "concepts": [
+                  "recognized_revenue"
+                ],
+                "documents": [
+                  {
+                    "kind": "context_doc",
+                    "path": "context.md"
+                  }
+                ],
+                "approved_source_refs": [
+                  "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8"
+                ],
+                "prohibited_source_refs": [
+                  "superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4"
+                ],
+                "evidence_refs": [
+                  "datahub:glossary_term:urn:li:glossaryTerm:recognized_revenue",
+                  "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2"
+                ],
+                "owner_refs": [
+                  "team:finance-data"
+                ],
+                "node_kinds": [
+                  "check",
+                  "concept",
+                  "domain",
+                  "field",
+                  "grain",
+                  "join",
+                  "owner",
+                  "source"
+                ],
+                "relationships": [
+                  "approved_for",
+                  "constrains",
+                  "defined_in",
+                  "evidenced_by",
+                  "owns",
+                  "reads",
+                  "validates"
+                ]
+              }
+            ],
+            "observed": [
+              {
+                "connector": "datahub",
+                "connection_id": "conn-cf26670209d8",
+                "display_name": "DataHub",
+                "asset_type": "glossary_term",
+                "live_count": 1
+              },
+              {
+                "connector": "superset",
+                "connection_id": "conn-a9554f3648a0",
+                "display_name": "Local Superset (REST)",
+                "asset_type": "database",
+                "live_count": 1
+              },
+              {
+                "connector": "superset",
+                "connection_id": "conn-a9554f3648a0",
+                "display_name": "Local Superset (REST)",
+                "asset_type": "dataset",
+                "live_count": 3
+              }
+            ]
+          },
+          "retryable_warnings": null
+        },
+        "summary": "list_context_catalog answered"
+      },
+      {
+        "kind": "tool_call",
+        "at": "2026-08-01T04:18:49.675582+00:00",
+        "detail": {
+          "operation": "resolve_analytics_context",
+          "params": {
+            "query": "What is recognized revenue by customer region?",
+            "directive": {
+              "asset_refs": [],
+              "concepts": [
+                "recognized_revenue"
+              ],
+              "domains": [
+                "revenue"
+              ]
+            }
+          }
+        },
+        "summary": "call resolve_analytics_context"
+      },
+      {
+        "kind": "tool_result",
+        "at": "2026-08-01T04:18:50.594941+00:00",
+        "detail": {
+          "operation": "resolve_analytics_context",
+          "result": {
+            "bundle_id": "cb-0f5046c1de99324b",
+            "resolved_at": "2026-08-01T04:18:50.574883+00:00",
+            "schema_version": 6,
+            "request": {
+              "query": "What is recognized revenue by customer region?",
+              "directive": {
+                "domains": [
+                  "revenue"
+                ],
+                "asset_refs": [],
+                "concepts": [
+                  "recognized_revenue"
+                ],
+                "max_hops": null,
+                "context_budget": null
+              }
+            },
+            "resolution": {
+              "status": "governed",
+              "summary": "Guidance for 'revenue' from the customer-authoritative Git context at commit 1db3e8cf64c9, with linked 4 observed source version(s). Hyperset did not author or approve this meaning.",
+              "warnings": []
+            },
+            "context_authority": {
+              "type": "git",
+              "repository": "/private/var/folders/qq/014ff8013g96knsyp4vcct_80000gn/T/pytest-of-brandonsovran/pytest-2888/test_a_live_arm_answers_and_is0/customer-repo",
+              "ref": "main",
+              "path": "domains/revenue",
+              "commit_sha": "1db3e8cf64c9297eb6473dae1eb08ec52db05eac",
+              "committed_at": "2026-08-01T04:17:54+00:00",
+              "context_snapshot_id": "ctxsnap-7050c6828b5b",
+              "content_sha256": "fc15ec75379898804bf90374b26e2f9824574dabc08a95a58e0d8314c89399ce",
+              "owner_refs": [
+                "team:finance-data"
+              ]
+            },
+            "instructions": {
+              "definitions": [
+                {
+                  "term": "recognized_revenue",
+                  "statement": "Revenue on the date an order becomes completed, net of tax, excluding internal and test accounts.",
+                  "evidence_refs": [
+                    "datahub:glossary_term:urn:li:glossaryTerm:recognized_revenue"
+                  ]
+                }
+              ],
+              "approved_sources": [
+                {
+                  "ref": "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "role": "primary",
+                  "reason": "Completed orders with the tax split the definition requires."
+                },
+                {
+                  "ref": "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "role": "required_dimension",
+                  "reason": "Only source of the customer region attribute."
+                }
+              ],
+              "fields": [
+                {
+                  "name": "recognized_revenue",
+                  "expression": "SUM(gross_amount - tax_amount)",
+                  "source_ref": "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2"
+                },
+                {
+                  "name": "region",
+                  "expression": "customer_dim.region",
+                  "source_ref": "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8"
+                }
+              ],
+              "filters": [
+                "finance_orders_daily.status = 'completed'",
+                "customer_dim.is_test = false"
+              ],
+              "joins": [
+                {
+                  "to": "customer_dim.customer_id",
+                  "from": "finance_orders_daily.customer_id",
+                  "type": "inner"
+                }
+              ],
+              "grain": "order_date by customer_dim.region",
+              "caveats": [
+                "Fixture recognition is not GAAP ASC 606 accounting guidance.",
+                "Do not substitute payment-event dates for order dates."
+              ],
+              "validations": [
+                "recognized_revenue is non-negative",
+                "monthly totals reconcile within 1% of the fixture close value"
+              ],
+              "prohibited_sources": [
+                {
+                  "ref": "superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "reason": "Double-counts partial captures and includes non-completed transactions."
+                }
+              ],
+              "context_doc": "# Recognized revenue\n\nRecognized revenue is the sum of gross amount less tax for orders that have\nreached the `completed` status, attributed to the order date rather than the\npayment date.\n\nRegional reporting joins the order fact to the customer dimension, which is the\nonly source that carries region. Test accounts are excluded everywhere.\n\n`raw_payments` looks like a revenue source and is not one: it records payment\ncaptures, so partial captures double-count and non-completed transactions leak\ninto the total.\n\nThis guidance is a demo fixture, not GAAP ASC 606 accounting advice.\n"
+            },
+            "linked_evidence": {
+              "observed_assets": [
+                {
+                  "ref": "datahub:glossary_term:urn:li:glossaryTerm:recognized_revenue",
+                  "connector": "datahub",
+                  "governance": "git_linked",
+                  "asset_type": "glossary_term",
+                  "external_id": "urn:li:glossaryTerm:recognized_revenue",
+                  "asset_id": "oa-ba1e3b0f0ceb",
+                  "connection_id": "conn-cf26670209d8",
+                  "observed_version_id": "oav-7dd36f6d5800",
+                  "observed_version": 1,
+                  "content_sha256": "a2f1b2b8a6142483573c382646f81411d4c6f887bb44bcdffb73b905cfb5ad71",
+                  "linked_version_id": "oav-7dd36f6d5800",
+                  "normalized": {}
+                },
+                {
+                  "ref": "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "connector": "superset",
+                  "governance": "git_linked",
+                  "asset_type": "dataset",
+                  "external_id": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "asset_id": "oa-24e038b7822d",
+                  "connection_id": "conn-a9554f3648a0",
+                  "observed_version_id": "oav-9355cfc2d5b7",
+                  "observed_version": 1,
+                  "content_sha256": "af1865adbac5ea97ae6382d17a063ca30abf0857956bf865c6e81a54e2dd6e77",
+                  "linked_version_id": "oav-9355cfc2d5b7",
+                  "normalized": {
+                    "name": "customer_dim",
+                    "schema": "public",
+                    "metrics": [
+                      {
+                        "name": "count",
+                        "expression": "COUNT(*)"
+                      }
+                    ],
+                    "description": "Customer region and test-account flags required by the revenue proposal.",
+                    "column_names": [
+                      "customer_id",
+                      "signup_date",
+                      "region",
+                      "segment",
+                      "is_test"
+                    ]
+                  }
+                },
+                {
+                  "ref": "superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "connector": "superset",
+                  "governance": "git_linked",
+                  "asset_type": "dataset",
+                  "external_id": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "asset_id": "oa-a1faa4f7356f",
+                  "connection_id": "conn-a9554f3648a0",
+                  "observed_version_id": "oav-9b372d956b4e",
+                  "observed_version": 1,
+                  "content_sha256": "0b5b26228b4d43c28aa4b95d4bc96d141adb9a80d8602da5a279cfdad74ffecc",
+                  "linked_version_id": "oav-9b372d956b4e",
+                  "normalized": {
+                    "name": "raw_payments",
+                    "schema": "public",
+                    "metrics": [
+                      {
+                        "name": "raw_payment_amount",
+                        "expression": "SUM(amount)"
+                      }
+                    ],
+                    "description": "Plausible but prohibited revenue alternative: gateway events include duplicate authorizations, partial captures, and sandbox traffic.",
+                    "column_names": [
+                      "payment_id",
+                      "order_id",
+                      "customer_id",
+                      "payment_date",
+                      "event_type",
+                      "amount",
+                      "gateway",
+                      "is_sandbox"
+                    ]
+                  }
+                },
+                {
+                  "ref": "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "connector": "superset",
+                  "governance": "git_linked",
+                  "asset_type": "dataset",
+                  "external_id": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "asset_id": "oa-b511e12282b3",
+                  "connection_id": "conn-a9554f3648a0",
+                  "observed_version_id": "oav-2247730958c1",
+                  "observed_version": 1,
+                  "content_sha256": "72b41e17cb86d4b98846282dab2717e1aad1536bc54f8519af59808c4f2082c7",
+                  "linked_version_id": "oav-2247730958c1",
+                  "normalized": {
+                    "name": "finance_orders_daily",
+                    "schema": "public",
+                    "metrics": [
+                      {
+                        "name": "recognized_revenue",
+                        "expression": "SUM(gross_amount - tax_amount)"
+                      }
+                    ],
+                    "description": "Approved-candidate order source for recognized revenue. Source metadata is observed evidence only; approval requires a Hyperset ReviewDecision.",
+                    "column_names": [
+                      "order_id",
+                      "customer_id",
+                      "order_date",
+                      "status",
+                      "gross_amount",
+                      "tax_amount",
+                      "currency"
+                    ]
+                  }
+                }
+              ],
+              "findings": [],
+              "freshness": [
+                {
+                  "ref": "datahub:glossary_term:urn:li:glossaryTerm:recognized_revenue",
+                  "last_observed_at": "2026-08-01T04:17:54.485806+00:00",
+                  "observed_version_at": "2026-08-01T04:17:54.489760+00:00",
+                  "source_modified_at": null,
+                  "deleted_at": null
+                },
+                {
+                  "ref": "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "last_observed_at": "2026-08-01T04:17:54.583655+00:00",
+                  "observed_version_at": "2026-08-01T04:17:54.587042+00:00",
+                  "source_modified_at": "2026-07-25T23:42:48.855228+00:00",
+                  "deleted_at": null
+                },
+                {
+                  "ref": "superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "last_observed_at": "2026-08-01T04:17:54.604340+00:00",
+                  "observed_version_at": "2026-08-01T04:17:54.606857+00:00",
+                  "source_modified_at": "2026-07-25T23:48:50.026653+00:00",
+                  "deleted_at": null
+                },
+                {
+                  "ref": "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "last_observed_at": "2026-08-01T04:17:54.564821+00:00",
+                  "observed_version_at": "2026-08-01T04:17:54.567308+00:00",
+                  "source_modified_at": "2026-07-25T23:51:59.838313+00:00",
+                  "deleted_at": null
+                }
+              ],
+              "conflicts": [],
+              "deprecations": [
+                {
+                  "ref": "superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "kind": "prohibited_by_context",
+                  "reason": "Double-counts partial captures and includes non-completed transactions."
+                }
+              ],
+              "uncorroborated": []
+            },
+            "domain_graph": {
+              "nodes": [
+                {
+                  "id": "domain:revenue",
+                  "kind": "domain",
+                  "label": "revenue"
+                },
+                {
+                  "id": "owner:team:finance-data",
+                  "kind": "owner",
+                  "label": "team:finance-data",
+                  "source": "manifest"
+                },
+                {
+                  "id": "concept:recognized_revenue",
+                  "kind": "concept",
+                  "label": "recognized_revenue"
+                },
+                {
+                  "id": "source:superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "kind": "source",
+                  "label": "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "role": "primary"
+                },
+                {
+                  "id": "source:superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "kind": "source",
+                  "label": "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "role": "required_dimension"
+                },
+                {
+                  "id": "field:recognized_revenue",
+                  "kind": "field",
+                  "label": "recognized_revenue"
+                },
+                {
+                  "id": "field:region",
+                  "kind": "field",
+                  "label": "region"
+                },
+                {
+                  "id": "join:finance_orders_daily.customer_id->customer_dim.customer_id",
+                  "kind": "join",
+                  "label": "finance_orders_daily.customer_id->customer_dim.customer_id",
+                  "join_type": "inner"
+                },
+                {
+                  "id": "grain:order_date by customer_dim.region",
+                  "kind": "grain",
+                  "label": "order_date by customer_dim.region"
+                },
+                {
+                  "id": "check:recognized_revenue is non-negative",
+                  "kind": "check",
+                  "label": "recognized_revenue is non-negative"
+                },
+                {
+                  "id": "check:monthly totals reconcile within 1% of the fixture close value",
+                  "kind": "check",
+                  "label": "monthly totals reconcile within 1% of the fixture close value"
+                },
+                {
+                  "id": "observed_version:oav-7dd36f6d5800",
+                  "kind": "provenance",
+                  "label": "urn:li:glossaryTerm:recognized_revenue",
+                  "connector": "datahub"
+                },
+                {
+                  "id": "observed_version:oav-9355cfc2d5b7",
+                  "kind": "provenance",
+                  "label": "5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "connector": "superset"
+                },
+                {
+                  "id": "observed_version:oav-9b372d956b4e",
+                  "kind": "provenance",
+                  "label": "6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "connector": "superset"
+                },
+                {
+                  "id": "observed_version:oav-2247730958c1",
+                  "kind": "provenance",
+                  "label": "ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "connector": "superset"
+                }
+              ],
+              "edges": [
+                {
+                  "from": "owner:team:finance-data",
+                  "to": "domain:revenue",
+                  "relation": "owns",
+                  "evidence": "git"
+                },
+                {
+                  "from": "concept:recognized_revenue",
+                  "to": "domain:revenue",
+                  "relation": "defined_in",
+                  "evidence": "git"
+                },
+                {
+                  "from": "concept:recognized_revenue",
+                  "to": "source:datahub:glossary_term:urn:li:glossaryTerm:recognized_revenue",
+                  "relation": "evidenced_by",
+                  "evidence": "git"
+                },
+                {
+                  "from": "source:superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "to": "domain:revenue",
+                  "relation": "approved_for",
+                  "evidence": "git"
+                },
+                {
+                  "from": "source:superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "to": "domain:revenue",
+                  "relation": "approved_for",
+                  "evidence": "git"
+                },
+                {
+                  "from": "field:recognized_revenue",
+                  "to": "source:superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "relation": "reads",
+                  "evidence": "git"
+                },
+                {
+                  "from": "field:region",
+                  "to": "source:superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "relation": "reads",
+                  "evidence": "git"
+                },
+                {
+                  "from": "join:finance_orders_daily.customer_id->customer_dim.customer_id",
+                  "to": "domain:revenue",
+                  "relation": "constrains",
+                  "evidence": "git"
+                },
+                {
+                  "from": "grain:order_date by customer_dim.region",
+                  "to": "domain:revenue",
+                  "relation": "constrains",
+                  "evidence": "git"
+                },
+                {
+                  "from": "check:recognized_revenue is non-negative",
+                  "to": "domain:revenue",
+                  "relation": "validates",
+                  "evidence": "git"
+                },
+                {
+                  "from": "check:monthly totals reconcile within 1% of the fixture close value",
+                  "to": "domain:revenue",
+                  "relation": "validates",
+                  "evidence": "git"
+                },
+                {
+                  "from": "source:datahub:glossary_term:urn:li:glossaryTerm:recognized_revenue",
+                  "to": "observed_version:oav-7dd36f6d5800",
+                  "relation": "observed_as",
+                  "evidence": "observation"
+                },
+                {
+                  "from": "source:superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8",
+                  "to": "observed_version:oav-9355cfc2d5b7",
+                  "relation": "observed_as",
+                  "evidence": "observation"
+                },
+                {
+                  "from": "source:superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4",
+                  "to": "observed_version:oav-9b372d956b4e",
+                  "relation": "observed_as",
+                  "evidence": "observation"
+                },
+                {
+                  "from": "source:superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                  "to": "observed_version:oav-2247730958c1",
+                  "relation": "observed_as",
+                  "evidence": "observation"
+                }
+              ]
+            },
+            "provenance_refs": [
+              "git_context:ctxsnap-7050c6828b5b@1db3e8cf64c9297eb6473dae1eb08ec52db05eac",
+              "observed_version:oav-7dd36f6d5800",
+              "observed_version:oav-9355cfc2d5b7",
+              "observed_version:oav-9b372d956b4e",
+              "observed_version:oav-2247730958c1"
+            ],
+            "execution": {
+              "performed_by_hyperset": false,
+              "result_validated_by_hyperset": false
+            }
+          },
+          "retryable_warnings": []
+        },
+        "summary": "resolve_analytics_context answered"
+      },
+      {
+        "kind": "tool_call",
+        "at": "2026-08-01T04:20:06.577326+00:00",
+        "detail": {
+          "operation": "validate_analytics_plan",
+          "params": {
+            "fields": [
+              {
+                "expression": "SUM(gross_amount - tax_amount)",
+                "name": "recognized_revenue"
+              },
+              {
+                "expression": "customer_dim.region",
+                "name": "region"
+              }
+            ],
+            "filters": [
+              "finance_orders_daily.status = 'completed'",
+              "customer_dim.is_test = false"
+            ],
+            "joins": [
+              {
+                "from": "finance_orders_daily.customer_id",
+                "to": "customer_dim.customer_id",
+                "type": "inner"
+              }
+            ],
+            "grain": "order_date by customer_dim.region",
+            "bundle_id": "cb-0f5046c1de99324b",
+            "query": "What is recognized revenue by customer region?",
+            "directive": {
+              "asset_refs": [
+                "superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2",
+                "superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8"
+              ],
+              "concepts": [
+                "recognized_revenue"
+              ],
+              "context_budget": null,
+              "domains": [
+                "revenue"
+              ],
+              "max_hops": null
+            }
+          }
+        },
+        "summary": "call validate_analytics_plan"
+      },
+      {
+        "kind": "tool_result",
+        "at": "2026-08-01T04:20:07.042700+00:00",
+        "detail": {
+          "operation": "validate_analytics_plan",
+          "result": {
+            "schema_version": 6,
+            "bundle_id": "cb-72b9b503948a2597",
+            "status": "unverifiable",
+            "summary": "The plan cannot be checked: the plan was built against bundle 'cb-0f5046c1de99324b', and this request resolved to 'cb-72b9b503948a2597'. One of three things differs: the 'query', the 'directive', or the underlying context and sources. Compare this request with the one you resolved -- it is echoed in the bundle's 'request'. If they differ, the 'query' or 'directive' sent here is not the one that was resolved, and this call re-resolved to a different bundle; the plan itself was never judged. If they match, the context or its sources moved and the answer must be resolved again before a plan built on the old one can be checked. The two ids are in 'checked_against': 'planned_bundle_id' is what the plan claimed and 'bundle_id' is what this request resolved to.",
+            "checked_against": {
+              "planned_bundle_id": "cb-0f5046c1de99324b",
+              "bundle_id": "cb-72b9b503948a2597",
+              "bundle_status": "governed",
+              "type": "git",
+              "commit_sha": "1db3e8cf64c9297eb6473dae1eb08ec52db05eac",
+              "context_snapshot_id": "ctxsnap-7050c6828b5b",
+              "provenance_refs": [
+                "git_context:ctxsnap-7050c6828b5b@1db3e8cf64c9297eb6473dae1eb08ec52db05eac",
+                "observed_version:oav-9355cfc2d5b7",
+                "observed_version:oav-2247730958c1"
+              ]
+            },
+            "violations": [
+              {
+                "code": "stale_bundle",
+                "severity": "error",
+                "section": "bundle_id",
+                "subject": "cb-0f5046c1de99324b",
+                "message": "the plan was built against bundle 'cb-0f5046c1de99324b', and this request resolved to 'cb-72b9b503948a2597'. One of three things differs: the 'query', the 'directive', or the underlying context and sources. Compare this request with the one you resolved -- it is echoed in the bundle's 'request'. If they differ, the 'query' or 'directive' sent here is not the one that was resolved, and this call re-resolved to a different bundle; the plan itself was never judged. If they match, the context or its sources moved and the answer must be resolved again before a plan built on the old one can be checked. The two ids are in 'checked_against': 'planned_bundle_id' is what the plan claimed and 'bundle_id' is what this request resolved to",
+                "recovery": "compare this request with the one in the bundle's 'request'. If they DIFFER, this call re-resolved to a different bundle than the plan was built against: re-send this same call with 'query' and 'directive' copied verbatim from the bundle's 'request', and do NOT rebuild the plan -- the request moved, not the plan. Refs your plan reads belong in 'source_refs' and are never added to 'directive'. If they MATCH, the context or its sources moved instead: resolve again and rebuild the plan against the id that resolve returns. 'checked_against.bundle_id' is what this request resolved to"
+              }
+            ],
+            "execution": {
+              "performed_by_hyperset": false,
+              "result_validated_by_hyperset": false
+            }
+          },
+          "retryable_warnings": null
+        },
+        "summary": "validate_analytics_plan answered"
+      },
+      {
+        "kind": "planner_message",
+        "at": "2026-08-01T04:21:06.107277+00:00",
+        "detail": {
+          "text": "The validation of your plan has revealed that it cannot be checked due to a mismatch between the bundle ID used when building the plan and the one resolved by this request. Here are the steps you should take:\n\n1. **Compare the Request with the Bundle's Request:**\n   - The `bundle_id` in the plan was `cb-0f5046c1de99324b`, but the current resolution returned a different bundle ID, `cb-72b9b503948a2597`.\n   - This indicates that either the query or directive sent to Hyperset has changed since the plan was built.\n\n2. **Rebuild the Plan:**\n   - To validate your plan correctly, you need to rebuild it using the exact `query` and `directive` from the bundle's request.\n   - The `request` in the bundle should contain the original query and directive that were used when resolving the context for this plan.\n\n3. **Resubmit the Validation Call:**\n   - Once you have rebuilt your plan with the correct `query` and `directive`, resubmit the validation call using these values.\n\nHere is an example of how to do this:\n\n### Rebuild the Plan\n\n```json\n{\n  \"bundle_id\": \"cb-72b9b503948a2597\",\n  \"query\": \"What is recognized revenue by customer region?\",\n  \"directive\": {\n    \"domains\": [\"revenue\"],\n    \"asset_refs\": [\n      \"superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2\",\n      \"superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8\"\n    ],\n    \"concepts\": [\"recognized_revenue\"],\n    \"max_hops\": null,\n    \"context_budget\": null\n  },\n  \"fields\": [\n    {\n      \"name\": \"recognized_revenue\",\n      \"expression\": \"SUM(gross_amount - tax_amount)\"\n    },\n    {\n      \"name\": \"region\",\n      \"expression\": \"customer_dim.region\"\n    }\n  ],\n  \"filters\": [\n    \"finance_orders_daily.status = 'completed'\",\n    \"customer_dim.is_test = false\"\n  ],\n  \"joins\": [\n    {\n      \"to\": \"customer_dim.customer_id\",\n      \"from\": \"finance_orders_daily.customer_id\",\n      \"type\": \"inner\"\n    }\n  ],\n  \"grain\": \"order_date by customer_dim.region\"\n}\n```\n\n### Resubmit the Validation Call\n\n```json\n{\n  \"bundle_id\": \"cb-72b9b503948a2597\",\n  \"query\": \"What is recognized revenue by customer region?\",\n  \"directive\": {\n    \"domains\": [\"revenue\"],\n    \"asset_refs\": [\n      \"superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2\",\n      \"superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8\"\n    ],\n    \"concepts\": [\"recognized_revenue\"],\n    \"max_hops\": null,\n    \"context_budget\": null\n  },\n  \"fields\": [\n    {\n      \"name\": \"recognized_revenue\",\n      \"expression\": \"SUM(gross_amount - tax_amount)\"\n    },\n    {\n      \"name\": \"region\",\n      \"expression\": \"customer_dim.region\"\n    }\n  ],\n  \"filters\": [\n    \"finance_orders_daily.status = 'completed'\",\n    \"customer_dim.is_test = false\"\n  ],\n  \"joins\": [\n    {\n      \"to\": \"customer_dim.customer_id\",\n      \"from\": \"finance_orders_daily.customer_id\",\n      \"type\": \"inner\"\n    }\n  ],\n  \"grain\": \"order_date by customer_dim.region\"\n}\n```\n\nBy following these steps, you ensure that the plan is validated against the correct context and sources."
+        },
+        "summary": "The validation of your plan has revealed that it cannot be checked due to a mismatch between the bundle ID used when building the plan and the one resolved by this request. Here are the steps you should take:\n\n1. **Compare the Request with the Bundle's Request:**\n   - The `bundle_id` in the plan was `cb-0f5046c1de99324b`, but the current resolution returned a different bundle ID, `cb-72b9b503948a2597`.\n   - This indicates that either the query or directive sent to Hyperset has changed since the plan was built.\n\n2. **Rebuild the Plan:**\n   - To validate your plan correctly, you need to rebuild it using the exact `query` and `directive` from the bundle's request.\n   - The `request` in the bundle should contain the original query and directive that were used when resolving the context for this plan.\n\n3. **Resubmit the Validation Call:**\n   - Once you have rebuilt your plan with the correct `query` and `directive`, resubmit the validation call using these values.\n\nHere is an example of how to do this:\n\n### Rebuild the Plan\n\n```json\n{\n  \"bundle_id\": \"cb-72b9b503948a2597\",\n  \"query\": \"What is recognized revenue by customer region?\",\n  \"directive\": {\n    \"domains\": [\"revenue\"],\n    \"asset_refs\": [\n      \"superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2\",\n      \"superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8\"\n    ],\n    \"concepts\": [\"recognized_revenue\"],\n    \"max_hops\": null,\n    \"context_budget\": null\n  },\n  \"fields\": [\n    {\n      \"name\": \"recognized_revenue\",\n      \"expression\": \"SUM(gross_amount - tax_amount)\"\n    },\n    {\n      \"name\": \"region\",\n      \"expression\": \"customer_dim.region\"\n    }\n  ],\n  \"filters\": [\n    \"finance_orders_daily.status = 'completed'\",\n    \"customer_dim.is_test = false\"\n  ],\n  \"joins\": [\n    {\n      \"to\": \"customer_dim.customer_id\",\n      \"from\": \"finance_orders_daily.customer_id\",\n      \"type\": \"inner\"\n    }\n  ],\n  \"grain\": \"order_date by customer_dim.region\"\n}\n```\n\n### Resubmit the Validation Call\n\n```json\n{\n  \"bundle_id\": \"cb-72b9b503948a2597\",\n  \"query\": \"What is recognized revenue by customer region?\",\n  \"directive\": {\n    \"domains\": [\"revenue\"],\n    \"asset_refs\": [\n      \"superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2\",\n      \"superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8\"\n    ],\n    \"concepts\": [\"recognized_revenue\"],\n    \"max_hops\": null,\n    \"context_budget\": null\n  },\n  \"fields\": [\n    {\n      \"name\": \"recognized_revenue\",\n      \"expression\": \"SUM(gross_amount - tax_amount)\"\n    },\n    {\n      \"name\": \"region\",\n      \"expression\": \"customer_dim.region\"\n    }\n  ],\n  \"filters\": [\n    \"finance_orders_daily.status = 'completed'\",\n    \"customer_dim.is_test = false\"\n  ],\n  \"joins\": [\n    {\n      \"to\": \"customer_dim.customer_id\",\n      \"from\": \"finance_orders_daily.customer_id\",\n      \"type\": \"inner\"\n    }\n  ],\n  \"grain\": \"order_date by customer_dim.region\"\n}\n```\n\nBy following these steps, you ensure that the plan is validated against the correct context and sources."
+      }
+    ]
+  }
+}

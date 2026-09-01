@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-reviewer-task-and-github" class="hs-v1-page">
+  <div class="hs-v1-window hs-v1-shell-window">
+    <aside class="hs-v1-rail" aria-label="Reviewer navigation">
+      <a class="hs-v1-rail-brand" href="#home"><span class="hs-v1-mark" aria-hidden="true">H</span><span>Hyperset<small>Northstar workspace</small></span></a>
+      <div class="hs-v1-rail-section"><a class="hs-v1-rail-link" href="#home">⌂ <span>Home</span></a><a class="hs-v1-rail-link" href="#chat">▱ <span>Chat</span></a><a class="hs-v1-rail-link" href="#explore">⌕ <span>Explore context</span></a><a class="hs-v1-rail-link" href="#queue" aria-current="page">◌ <span>Review queue</span></a></div>
+      <div class="hs-v1-rail-spacer"></div>
+      <div class="hs-v1-rail-section"><a class="hs-v1-rail-link" href="#notifications">◔ <span>Notifications</span></a><a class="hs-v1-rail-link" href="#settings">⚙ <span>Settings</span></a><a class="hs-v1-rail-link" href="#help">? <span>Help</span></a></div>
+      <div class="hs-v1-rail-divider"></div><button class="hs-v1-rail-profile" type="button"><span class="hs-v1-avatar" aria-hidden="true">MR</span><span class="hs-v1-rail-profile-copy"><strong>Maya Rodriguez</strong><span>Reviewer · account</span></span><span aria-hidden="true">···</span></button>
+    </aside>
+
+    <main class="hs-v1-shell-main">
+      <header class="hs-v1-shell-topline"><div><h1>Review task <span class="hs-v1-muted">RV-1842</span></h1><span>Assigned to Maya Rodriguez · Revenue</span></div><span class="hs-v1-admin-identity">Signed in</span></header>
+      <div class="hs-v1-main">
+        <div class="hs-v1-heading-row"><div><div class="hs-v1-kicker">Needs a human decision</div><h1>Should region be part of recognized revenue?</h1><p class="hs-v1-muted">An observed metric and the governed definition disagree.</p></div><span class="hs-v1-review-draft-state">Draft only · not serving</span></div>
+
+        <section class="hs-v1-panel"><div class="hs-v1-section-heading"><div><h2>Current vs proposed meaning</h2><p class="hs-v1-muted">Preview the impact before anything is proposed to GitHub.</p></div><a class="hs-v1-button" href="#review-preview">Preview proposed context</a></div><div class="hs-v1-review-compare" style="margin-top:18px"><article class="hs-v1-compare-col"><h3>Current · serving</h3><p>Recognized revenue includes revenue recognized when the service obligation is fulfilled. Region is applied only when a question explicitly requests it.</p><span class="hs-v1-small">Git <code>main@abc1234</code> · serving now</span></article><article class="hs-v1-compare-col hs-v1-compare-col-proposed"><h3>Proposed · draft</h3><p>Recognized revenue includes a default region filter because the observed metric and this question use regional scope.</p><span class="hs-v1-small">Ephemeral preview · authority unchanged</span></article></div><div class="hs-v1-review-delta"><strong>Decision needed:</strong> make region a default rule, or keep it explicit in regional questions. The draft is not live.</div></section>
+
+        <div class="hs-v1-content-grid" style="margin-top:18px"><section class="hs-v1-panel"><h2>Evidence</h2><ul class="hs-v1-source-list" style="margin-top:8px"><li class="hs-v1-source-row"><div class="hs-v1-source-copy"><strong>Governed directive</strong><span>Git · <code>main / abc1234</code> · 8 minutes ago</span></div><span class="hs-v1-inline-state hs-v1-inline-state-ready">Authority</span></li><li class="hs-v1-source-row"><div class="hs-v1-source-copy"><strong>Observed metric</strong><span>Superset · <code>revenue_monthly</code> · 19 hours ago</span></div><span class="hs-v1-status hs-v1-status-warning">Conflict</span></li><li class="hs-v1-source-row"><div class="hs-v1-source-copy"><strong>Trigger question</strong><span>Canada · last quarter</span></div></li></ul></section><section class="hs-v1-panel"><h2>Next step</h2><p class="hs-v1-muted">Use the preview to test the same question. If the draft is correct, open one GitHub proposal with this evidence attached.</p><div class="hs-v1-button-row" style="margin-top:16px"><a class="hs-v1-button hs-v1-button-primary" href="#review-preview">Open preview</a><button class="hs-v1-button" type="button">Needs evidence</button></div></section></div>
+
+        <details class="hs-v1-details"><summary>After a decision</summary><p class="hs-v1-muted">A reviewer can open one PR from the approved draft. GitHub review and merge remain the authority; Hyperset syncs only after the merged commit validates. Slack links to this task and the PR.</p></details>
+      </div>
+    </main>
+  </div>
+</div>

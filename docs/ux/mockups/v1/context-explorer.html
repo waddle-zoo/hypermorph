@@ -1,0 +1,148 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-context-explorer" class="hs-v1-page">
+  <div class="hs-v1-window hs-v1-shell-window">
+    <aside class="hs-v1-rail" aria-label="Hyperset navigation">
+      <a class="hs-v1-rail-brand" href="#home"><span class="hs-v1-mark" aria-hidden="true">H</span><span>Hyperset<small>Northstar workspace</small></span></a>
+      <div class="hs-v1-rail-section"><a class="hs-v1-rail-link hs-v1-rail-link-primary" href="#new-chat">＋ <span>New chat</span></a><a class="hs-v1-rail-link" href="#home">⌂ <span>Home</span></a><a class="hs-v1-rail-link" href="#explore" aria-current="page">⌕ <span>Explore context</span></a></div>
+      <div class="hs-v1-rail-spacer"></div>
+      <div class="hs-v1-rail-section"><a class="hs-v1-rail-link" href="#get-started">▣ <span>Connect MCP</span></a><a class="hs-v1-rail-link" href="#settings">⚙ <span>Settings</span></a><a class="hs-v1-rail-link" href="#help">? <span>Help</span></a></div>
+      <div class="hs-v1-rail-divider"></div><button class="hs-v1-rail-profile" type="button"><span class="hs-v1-avatar" aria-hidden="true">SP</span><span class="hs-v1-rail-profile-copy"><strong>Sam Patel</strong><span>Explorer · account</span></span><span aria-hidden="true">···</span></button>
+    </aside>
+    <main class="hs-v1-shell-main">
+      <header class="hs-v1-shell-topline"><div><h1>Explore context</h1><span>Full graph · read-only</span></div><a class="hs-v1-button hs-v1-button-quiet" href="#chat">Back to chat</a></header>
+      <div class="hs-v1-main">
+      <div class="hs-v1-heading-row"><div><div class="hs-v1-kicker">Search governed meaning</div><h1>Find a context bundle</h1><p class="hs-v1-muted">Search a concept, then inspect how its rules and sources connect.</p></div></div>
+
+      <div class="hs-v1-graph-toolbar"><label class="hs-v1-field" for="hs-v1-graph-search"><span class="hs-v1-field-label">Search bundles and context</span><input id="hs-v1-graph-search" class="hs-v1-input" type="search" placeholder="Try revenue, region, Superset…"></label><label class="hs-v1-field" for="hs-v1-graph-domain"><span class="hs-v1-field-label">Domain</span><select id="hs-v1-graph-domain" class="hs-v1-select"><option>All domains</option><option>Revenue</option><option>Marketing</option><option>Platform</option></select></label><span id="hs-v1-graph-count" class="hs-v1-status hs-v1-status-blue">10 nodes</span></div>
+
+      <div class="hs-v1-graph-layout">
+        <section class="hs-v1-graph-canvas" aria-label="Interactive context bundle graph">
+          <svg id="hs-v1-graph-svg" class="hs-v1-graph-svg" viewBox="0 0 960 500" role="img" aria-labelledby="hs-v1-graph-title hs-v1-graph-desc">
+            <title id="hs-v1-graph-title">Northstar context bundle graph</title>
+            <desc id="hs-v1-graph-desc">A connected graph of governed domains, concepts, datasets, rules, owners, and source definitions. Search or select a node to inspect it.</desc>
+            <defs><marker id="hs-v1-graph-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"></path></marker></defs>
+            <g id="hs-v1-graph-edges" class="hs-v1-graph-edges"></g>
+            <g id="hs-v1-graph-nodes" class="hs-v1-graph-nodes"></g>
+          </svg>
+        </section>
+
+        <aside class="hs-v1-graph-sidebar">
+          <h2>Matching context</h2><p class="hs-v1-small">Select a result or a node in the graph.</p>
+          <ul id="hs-v1-graph-results" class="hs-v1-graph-results" aria-label="Matching context nodes"></ul>
+          <section id="hs-v1-graph-selected" class="hs-v1-graph-selected" aria-live="polite"></section>
+        </aside>
+      </div>
+
+      <details class="hs-v1-details"><summary>View bundle snapshot</summary><p class="hs-v1-muted">Git authority: <code>northstar/meaning@abc1234</code> · observed corroboration: Superset synced 19h ago · read-only bundle snapshot.</p></details>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('hs-v1-context-explorer');
+  const svg = document.getElementById('hs-v1-graph-svg');
+  const edgeLayer = document.getElementById('hs-v1-graph-edges');
+  const nodeLayer = document.getElementById('hs-v1-graph-nodes');
+  const results = document.getElementById('hs-v1-graph-results');
+  const selectedPanel = document.getElementById('hs-v1-graph-selected');
+  const searchInput = document.getElementById('hs-v1-graph-search');
+  const domainSelect = document.getElementById('hs-v1-graph-domain');
+  const count = document.getElementById('hs-v1-graph-count');
+  const ns = 'http://www.w3.org/2000/svg';
+  const nodes = [
+    { id: 'revenue', label: 'Revenue', kind: 'domain', domain: 'Revenue', x: 92, y: 92, description: 'The governed revenue domain.' },
+    { id: 'recognized_revenue', label: 'Recognized revenue', kind: 'concept', domain: 'Revenue', x: 300, y: 72, description: 'Revenue recognized when the service obligation is fulfilled.' },
+    { id: 'net_revenue', label: 'Net revenue', kind: 'concept', domain: 'Revenue', x: 300, y: 192, description: 'Revenue after the governed deductions.' },
+    { id: 'region', label: 'Region', kind: 'dimension', domain: 'Revenue', x: 528, y: 36, description: 'Geographic reporting dimension used by regional questions.' },
+    { id: 'revenue_monthly', label: 'revenue_monthly', kind: 'dataset', domain: 'Revenue', x: 528, y: 160, description: 'Observed Superset dataset used for corroboration.' },
+    { id: 'quarter', label: 'Quarter', kind: 'rule', domain: 'Revenue', x: 528, y: 286, description: 'Default reporting grain for the recognized revenue directive.' },
+    { id: 'superset_metric', label: 'Superset metric', kind: 'observed', domain: 'Revenue', x: 760, y: 116, description: 'Observed metric that currently applies a region filter.' },
+    { id: 'git_definition', label: 'Git definition', kind: 'source', domain: 'Revenue', x: 760, y: 238, description: 'Authority at northstar/meaning@abc1234.' },
+    { id: 'finance', label: 'Finance', kind: 'owner', domain: 'Revenue', x: 300, y: 344, description: 'Business owner for revenue meaning.' },
+    { id: 'marketing', label: 'Marketing', kind: 'domain', domain: 'Marketing', x: 92, y: 304, description: 'A second governed domain in the workspace.' }
+  ];
+  const edges = [
+    ['revenue', 'recognized_revenue', 'contains'], ['revenue', 'net_revenue', 'contains'],
+    ['recognized_revenue', 'region', 'uses'], ['recognized_revenue', 'revenue_monthly', 'maps to'],
+    ['recognized_revenue', 'quarter', 'uses grain'], ['recognized_revenue', 'finance', 'owned by'],
+    ['recognized_revenue', 'git_definition', 'defined by'], ['revenue_monthly', 'superset_metric', 'observed as'],
+    ['net_revenue', 'revenue_monthly', 'maps to'], ['marketing', 'finance', 'related owner']
+  ];
+  const nodeMap = new Map(nodes.map((node) => [node.id, node]));
+  let selectedId = 'recognized_revenue';
+
+  const makeSvg = (tag, attrs) => {
+    const element = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
+    return element;
+  };
+
+  function matches(node) {
+    const query = searchInput.value.trim().toLowerCase();
+    const domain = domainSelect.value;
+    return (!query || [node.label, node.kind, node.domain, node.description].join(' ').toLowerCase().includes(query)) && (domain === 'All domains' || node.domain === domain);
+  }
+
+  function render() {
+    edgeLayer.replaceChildren();
+    nodeLayer.replaceChildren();
+    const visible = nodes.filter(matches);
+    count.textContent = `${visible.length} of ${nodes.length} nodes`;
+    edges.forEach(([fromId, toId, label]) => {
+      const from = nodeMap.get(fromId); const to = nodeMap.get(toId);
+      const edge = makeSvg('g', { class: 'hs-v1-graph-edge' });
+      edge.appendChild(makeSvg('line', { x1: from.x + 150, y1: from.y + 29, x2: to.x, y2: to.y + 29, 'marker-end': 'url(#hs-v1-graph-arrow)' }));
+      const text = makeSvg('text', { x: (from.x + 150 + to.x) / 2, y: (from.y + to.y) / 2 + 22 });
+      text.textContent = label;
+      edge.appendChild(text);
+      edgeLayer.appendChild(edge);
+    });
+    nodes.forEach((node) => {
+      const group = makeSvg('g', { class: 'hs-v1-graph-node', 'data-kind': node.kind, 'data-selected': String(node.id === selectedId), 'data-match': String(visible.includes(node)), 'aria-label': `${node.label}, ${node.kind}`, tabindex: '0', role: 'button' });
+      const rect = makeSvg('rect', { x: node.x, y: node.y, width: 150, height: 58, rx: 10 });
+      const kind = makeSvg('text', { x: node.x + 12, y: node.y + 19, class: 'hs-v1-graph-node-kind' });
+      kind.textContent = node.kind;
+      const label = makeSvg('text', { x: node.x + 12, y: node.y + 41 });
+      label.textContent = node.label;
+      group.append(rect, kind, label);
+      group.addEventListener('click', () => selectNode(node.id));
+      group.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectNode(node.id); } });
+      nodeLayer.appendChild(group);
+    });
+    results.replaceChildren();
+    visible.forEach((node) => {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'hs-v1-graph-result'; button.setAttribute('aria-current', String(node.id === selectedId));
+      button.innerHTML = `<strong>${node.label}</strong><span>${node.kind} · ${node.domain}</span>`;
+      button.addEventListener('click', () => selectNode(node.id));
+      item.appendChild(button); results.appendChild(item);
+    });
+    if (!visible.length) {
+      const item = document.createElement('li'); item.className = 'hs-v1-small'; item.textContent = 'No matching nodes.'; results.appendChild(item);
+    }
+    updateSelected();
+  }
+
+  function selectNode(id) {
+    selectedId = id;
+    render();
+  }
+
+  function updateSelected() {
+    const node = nodeMap.get(selectedId);
+    selectedPanel.innerHTML = `<div class="hs-v1-kicker">Selected context</div><h3>${node.label}</h3><p>${node.description}</p><span class="hs-v1-inline-state">${node.kind} · ${node.domain}</span><a class="hs-v1-button hs-v1-button-primary" href="#chat" style="margin-top:12px">Use this bundle in chat</a>`;
+  }
+
+  searchInput.addEventListener('input', render);
+  domainSelect.addEventListener('change', render);
+  svg.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') { searchInput.value = ''; domainSelect.value = 'All domains'; render(); }
+  });
+  render();
+  root.dataset.ready = 'true';
+})();
+</script>

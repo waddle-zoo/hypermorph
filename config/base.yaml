@@ -1,0 +1,29 @@
+# Hyperset base configuration (hy-7h00, ADR-0035). The single source of truth for the
+# config SHAPE and for SAFE, NON-DEMO defaults: authorization off, listeners bound to
+# loopback, playground off. ALWAYS loaded first and implicitly -- never named in
+# HYPERSET_CONFIG, never edited by a customer (customers layer an overlay over this).
+#
+# Every scalar here is parsed as a STRING; the typed schema coerces it (so `false` and
+# `8080` below become a bool and an int by SCHEMA, not by YAML's implicit typing).
+server:
+  bind: loopback
+  api_port: 8080
+  mcp_http_port: 8010
+  ui_bind: loopback
+  ui_port: 8000
+  log_level: info
+auth:
+  enabled: false
+models:
+  planner: gpt-5.6-luna
+  embedding: text-embedding-3-small
+# Provider endpoints remain deployment settings, not safe base defaults. Compose supplies the
+# deployed OpenAI/Luna contract; the isolated local-model benchmark supplies its own pinned
+# Ollama endpoint and never becomes the product runtime.
+features:
+  pii_guard: false
+  discover: true
+  expand: true
+  review: true
+playground:
+  enabled: false

@@ -1,0 +1,125 @@
+{
+  "data": {
+    "dataset": {
+      "domain": {
+        "domain": {
+          "urn": "urn:li:domain:revenue"
+        }
+      },
+      "glossaryTerms": {
+        "terms": [
+          {
+            "term": {
+              "urn": "urn:li:glossaryTerm:recognized_revenue"
+            }
+          }
+        ]
+      },
+      "lastIngested": null,
+      "name": "finance_orders_daily",
+      "origin": "PROD",
+      "ownership": {
+        "owners": [
+          {
+            "owner": {
+              "urn": "urn:li:corpuser:revenue_owner"
+            },
+            "ownershipType": {
+              "urn": "urn:li:ownershipType:__system__dataowner"
+            }
+          }
+        ]
+      },
+      "platform": {
+        "name": "postgres",
+        "urn": "urn:li:dataPlatform:postgres"
+      },
+      "properties": {
+        "created": null,
+        "customProperties": [
+          {
+            "key": "warehouse_schema",
+            "value": "public"
+          },
+          {
+            "key": "warehouse_table",
+            "value": "finance_orders_daily"
+          }
+        ],
+        "description": "Daily finance order facts. Authoritative source for recognized revenue.",
+        "externalUrl": null,
+        "lastModified": {
+          "actor": null,
+          "time": 0
+        },
+        "name": "finance_orders_daily",
+        "qualifiedName": "analytics.public.finance_orders_daily"
+      },
+      "schemaMetadata": {
+        "fields": [
+          {
+            "description": null,
+            "fieldPath": "order_id",
+            "nativeDataType": "string",
+            "nullable": false,
+            "type": "STRING"
+          },
+          {
+            "description": null,
+            "fieldPath": "customer_id",
+            "nativeDataType": "string",
+            "nullable": false,
+            "type": "STRING"
+          },
+          {
+            "description": null,
+            "fieldPath": "order_date",
+            "nativeDataType": "date",
+            "nullable": false,
+            "type": "DATE"
+          },
+          {
+            "description": null,
+            "fieldPath": "status",
+            "nativeDataType": "string",
+            "nullable": false,
+            "type": "STRING"
+          },
+          {
+            "description": null,
+            "fieldPath": "gross_amount",
+            "nativeDataType": "number",
+            "nullable": false,
+            "type": "NUMBER"
+          },
+          {
+            "description": null,
+            "fieldPath": "tax_amount",
+            "nativeDataType": "number",
+            "nullable": false,
+            "type": "NUMBER"
+          },
+          {
+            "description": null,
+            "fieldPath": "currency",
+            "nativeDataType": "string",
+            "nullable": false,
+            "type": "STRING"
+          }
+        ],
+        "name": "analytics.public.finance_orders_daily",
+        "primaryKeys": null
+      },
+      "status": null,
+      "subTypes": null,
+      "tags": null,
+      "type": "DATASET",
+      "upstreams": {
+        "relationships": [],
+        "total": 0
+      },
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,analytics.public.finance_orders_daily,PROD)"
+    }
+  },
+  "extensions": {}
+}

@@ -1,0 +1,27 @@
+{
+  "name": "hyperset-playground-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hyperset/chat-ui": "file:../../packages/chat-ui",
+    "@vitejs/plugin-react": "4.6.0",
+    "dompurify": "3.2.6",
+    "marked": "15.0.12",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-router-dom": "7.18.2",
+    "vite": "7.0.6"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.0",
+    "@testing-library/jest-dom": "6.6.3",
+    "@testing-library/react": "16.1.0",
+    "jsdom": "25.0.1",
+    "vitest": "3.2.4"
+  }
+}

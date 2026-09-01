@@ -1,0 +1,47 @@
+{
+  "data": {
+    "scrollAcrossEntities": {
+      "count": 6,
+      "nextScrollId": null,
+      "searchResults": [
+        {
+          "entity": {
+            "type": "DATASET",
+            "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,analytics.public.finance_orders_daily,PROD)"
+          }
+        },
+        {
+          "entity": {
+            "type": "DATASET",
+            "urn": "urn:li:dataset:(urn:li:dataPlatform:superset,ae48881d-334f-54a7-94e8-1ffcc73866e2,PROD)"
+          }
+        },
+        {
+          "entity": {
+            "type": "DOMAIN",
+            "urn": "urn:li:domain:revenue"
+          }
+        },
+        {
+          "entity": {
+            "type": "CORP_USER",
+            "urn": "urn:li:corpuser:datahub"
+          }
+        },
+        {
+          "entity": {
+            "type": "CORP_USER",
+            "urn": "urn:li:corpuser:revenue_owner"
+          }
+        },
+        {
+          "entity": {
+            "type": "GLOSSARY_TERM",
+            "urn": "urn:li:glossaryTerm:recognized_revenue"
+          }
+        }
+      ]
+    }
+  },
+  "extensions": {}
+}

@@ -1,0 +1,13 @@
+databases:
+  - {}
+
+datasets:
+  - table_name: no_metric_expression
+    metrics:
+      - metric_name: bad
+
+charts:
+  - {}
+
+dashboards:
+  - {}

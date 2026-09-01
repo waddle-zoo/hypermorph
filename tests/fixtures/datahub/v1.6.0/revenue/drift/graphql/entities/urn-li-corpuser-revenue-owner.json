@@ -1,0 +1,18 @@
+{
+  "data": {
+    "corpUser": {
+      "properties": {
+        "active": true,
+        "departmentName": null,
+        "displayName": "Revenue Data Owner",
+        "email": "revenue_owner@example.invalid",
+        "title": "Finance Data Owner"
+      },
+      "status": null,
+      "type": "CORP_USER",
+      "urn": "urn:li:corpuser:revenue_owner",
+      "username": "revenue_owner"
+    }
+  },
+  "extensions": {}
+}

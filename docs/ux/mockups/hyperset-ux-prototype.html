@@ -1,0 +1,269 @@
+<div id="hyperset-ux-prototype">
+  <style>
+    #hyperset-ux-prototype {
+      --hs-ink: #1e1b2e;
+      --hs-muted: #746f83;
+      --hs-line: #e7e2ef;
+      --hs-soft: #f7f4fa;
+      --hs-white: #ffffff;
+      --hs-purple: #6b4de6;
+      --hs-purple-soft: #eeeaff;
+      --hs-green: #17865b;
+      --hs-green-soft: #e5f6ee;
+      --hs-amber: #b56a12;
+      --hs-amber-soft: #fff3df;
+      --hs-red: #b6424b;
+      --hs-red-soft: #fdebed;
+      --hs-mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
+      box-sizing: border-box;
+      min-width: 320px;
+      color: var(--hs-ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0edf5;
+      border: 1px solid #dcd5e8;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(48, 36, 78, .16);
+    }
+    #hyperset-ux-prototype *, #hyperset-ux-prototype *::before, #hyperset-ux-prototype *::after { box-sizing: inherit; }
+    #hyperset-ux-prototype button { font: inherit; }
+    #hyperset-ux-prototype .hs-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 22px; background: var(--hs-white); border-bottom: 1px solid var(--hs-line); }
+    #hyperset-ux-prototype .hs-brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
+    #hyperset-ux-prototype .hs-mark { width: 24px; height: 24px; display: grid; place-items: center; color: #fff; border-radius: 7px; background: var(--hs-purple); font-size: 12px; font-weight: 800; }
+    #hyperset-ux-prototype .hs-breadcrumb { color: var(--hs-muted); font-size: 12px; }
+    #hyperset-ux-prototype .hs-security { display: inline-flex; align-items: center; gap: 6px; color: var(--hs-green); font-family: var(--hs-mono); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+    #hyperset-ux-prototype .hs-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    #hyperset-ux-prototype .hs-nav { display: flex; gap: 5px; padding: 10px 22px; overflow-x: auto; background: var(--hs-white); border-bottom: 1px solid var(--hs-line); }
+    #hyperset-ux-prototype .hs-nav button { flex: 0 0 auto; padding: 8px 12px; color: var(--hs-muted); border: 1px solid transparent; border-radius: 8px; background: transparent; font-size: 12px; cursor: pointer; }
+    #hyperset-ux-prototype .hs-nav button:hover, #hyperset-ux-prototype .hs-nav button[aria-pressed="true"] { color: var(--hs-purple); border-color: #dcd2ff; background: var(--hs-purple-soft); }
+    #hyperset-ux-prototype .hs-body { display: grid; grid-template-columns: 230px minmax(0, 1fr); min-height: 620px; }
+    #hyperset-ux-prototype .hs-rail { padding: 22px 16px; background: #faf9fc; border-right: 1px solid var(--hs-line); }
+    #hyperset-ux-prototype .hs-rail-label { margin: 0 8px 12px; color: var(--hs-muted); font-family: var(--hs-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    #hyperset-ux-prototype .hs-step { display: grid; grid-template-columns: 20px 1fr; gap: 10px; padding: 10px 8px; border-radius: 10px; }
+    #hyperset-ux-prototype .hs-step.active { background: var(--hs-white); box-shadow: 0 4px 18px rgba(48, 36, 78, .07); }
+    #hyperset-ux-prototype .hs-step-icon { width: 20px; height: 20px; display: grid; place-items: center; color: var(--hs-green); border: 1px solid #a8dec5; border-radius: 50%; background: var(--hs-green-soft); font-size: 11px; font-weight: 800; }
+    #hyperset-ux-prototype .hs-step.pending .hs-step-icon { color: var(--hs-muted); border-color: var(--hs-line); background: var(--hs-soft); }
+    #hyperset-ux-prototype .hs-step strong { display: block; font-size: 12px; }
+    #hyperset-ux-prototype .hs-step small { display: block; margin-top: 3px; color: var(--hs-muted); font-size: 11px; line-height: 1.35; }
+    #hyperset-ux-prototype .hs-rail-note { margin: 26px 8px 0; padding: 11px; color: var(--hs-muted); border-top: 1px solid var(--hs-line); font-size: 11px; line-height: 1.5; }
+    #hyperset-ux-prototype .hs-main { min-width: 0; padding: 26px clamp(18px, 4vw, 44px) 40px; background: var(--hs-white); }
+    #hyperset-ux-prototype .hs-view { display: none; max-width: 860px; margin: 0 auto; }
+    #hyperset-ux-prototype .hs-view.active { display: block; }
+    #hyperset-ux-prototype .hs-eyebrow { color: var(--hs-purple); font-family: var(--hs-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+    #hyperset-ux-prototype h1 { margin: 8px 0 7px; font-size: clamp(23px, 3vw, 31px); letter-spacing: -.045em; }
+    #hyperset-ux-prototype h2 { margin: 0 0 6px; font-size: 16px; letter-spacing: -.02em; }
+    #hyperset-ux-prototype h3 { margin: 0; font-size: 13px; }
+    #hyperset-ux-prototype p { margin: 0; color: var(--hs-muted); font-size: 12px; line-height: 1.55; }
+    #hyperset-ux-prototype .hs-lede { max-width: 660px; margin-bottom: 22px; }
+    #hyperset-ux-prototype .hs-role-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+    #hyperset-ux-prototype .hs-role-card { display: grid; grid-template-columns: 31px 1fr auto; gap: 10px; align-items: center; padding: 13px; color: var(--hs-ink); border: 1px solid var(--hs-line); border-radius: 11px; background: var(--hs-white); text-align: left; cursor: pointer; }
+    #hyperset-ux-prototype .hs-role-card:hover { border-color: var(--hs-purple); box-shadow: 0 5px 18px rgba(48, 36, 78, .08); }
+    #hyperset-ux-prototype .hs-role-icon { width: 31px; height: 31px; display: grid; place-items: center; color: var(--hs-purple); border-radius: 9px; background: var(--hs-purple-soft); font-family: var(--hs-mono); font-size: 12px; font-weight: 700; }
+    #hyperset-ux-prototype .hs-role-card strong { display: block; font-size: 12px; }
+    #hyperset-ux-prototype .hs-role-card small { display: block; margin-top: 3px; color: var(--hs-muted); font-size: 10px; line-height: 1.35; }
+    #hyperset-ux-prototype .hs-role-arrow { color: var(--hs-purple); font-size: 18px; }
+    #hyperset-ux-prototype .hs-use-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 14px 0; }
+    #hyperset-ux-prototype .hs-use-step { padding: 10px; border: 1px solid var(--hs-line); border-radius: 8px; background: var(--hs-soft); }
+    #hyperset-ux-prototype .hs-use-step strong { display: block; font-size: 11px; }
+    #hyperset-ux-prototype .hs-use-step small { display: block; margin-top: 4px; color: var(--hs-muted); font-size: 10px; line-height: 1.35; }
+    #hyperset-ux-prototype .hs-admin-nav { display: flex; flex-wrap: wrap; gap: 5px; margin: 14px 0 3px; padding: 4px; border: 1px solid var(--hs-line); border-radius: 9px; background: var(--hs-soft); }
+    #hyperset-ux-prototype .hs-admin-nav button { padding: 7px 9px; color: var(--hs-muted); border: 0; border-radius: 6px; background: transparent; font-family: var(--hs-mono); font-size: 9px; cursor: pointer; }
+    #hyperset-ux-prototype .hs-admin-nav button.active, #hyperset-ux-prototype .hs-admin-nav button:hover { color: var(--hs-purple); background: var(--hs-white); box-shadow: 0 2px 8px rgba(48, 36, 78, .06); }
+    #hyperset-ux-prototype .hs-form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
+    #hyperset-ux-prototype .hs-field { display: block; color: var(--hs-muted); font-family: var(--hs-mono); font-size: 9px; letter-spacing: .04em; text-transform: uppercase; }
+    #hyperset-ux-prototype .hs-field input, #hyperset-ux-prototype .hs-field select { display: block; width: 100%; margin-top: 6px; padding: 9px 10px; color: var(--hs-ink); border: 1px solid #d8d0e3; border-radius: 7px; background: var(--hs-white); font-family: inherit; font-size: 11px; letter-spacing: 0; text-transform: none; }
+    #hyperset-ux-prototype .hs-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 12px; }
+    #hyperset-ux-prototype .hs-toolbar small, #hyperset-ux-prototype .hs-meta { color: var(--hs-muted); font-family: var(--hs-mono); font-size: 10px; }
+    #hyperset-ux-prototype .hs-panel { margin-top: 14px; padding: 17px; border: 1px solid var(--hs-line); border-radius: 12px; background: var(--hs-white); }
+    #hyperset-ux-prototype .hs-panel.soft { background: var(--hs-soft); }
+    #hyperset-ux-prototype .hs-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    #hyperset-ux-prototype .hs-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 6px; font-family: var(--hs-mono); font-size: 10px; white-space: nowrap; }
+    #hyperset-ux-prototype .hs-status.ready { color: var(--hs-green); background: var(--hs-green-soft); }
+    #hyperset-ux-prototype .hs-status.warn { color: var(--hs-amber); background: var(--hs-amber-soft); }
+    #hyperset-ux-prototype .hs-status.danger { color: var(--hs-red); background: var(--hs-red-soft); }
+    #hyperset-ux-prototype .hs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    #hyperset-ux-prototype .hs-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #hyperset-ux-prototype .hs-stat { padding: 12px; border: 1px solid var(--hs-line); border-radius: 9px; background: var(--hs-white); }
+    #hyperset-ux-prototype .hs-stat strong { display: block; margin-top: 5px; font-size: 13px; }
+    #hyperset-ux-prototype .hs-stat small { color: var(--hs-muted); font-size: 10px; line-height: 1.4; }
+    #hyperset-ux-prototype .hs-kicker { color: var(--hs-muted); font-family: var(--hs-mono); font-size: 9px; letter-spacing: .07em; text-transform: uppercase; }
+    #hyperset-ux-prototype .hs-button { padding: 8px 12px; color: var(--hs-ink); border: 1px solid #d4ccdf; border-radius: 8px; background: var(--hs-white); font-size: 12px; font-weight: 650; cursor: pointer; }
+    #hyperset-ux-prototype .hs-button:hover { border-color: var(--hs-purple); color: var(--hs-purple); }
+    #hyperset-ux-prototype .hs-button.primary { color: #fff; border-color: var(--hs-purple); background: var(--hs-purple); }
+    #hyperset-ux-prototype .hs-button.ghost { border-color: transparent; background: transparent; color: var(--hs-purple); }
+    #hyperset-ux-prototype .hs-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+    #hyperset-ux-prototype .hs-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    #hyperset-ux-prototype .hs-table th { color: var(--hs-muted); font-family: var(--hs-mono); font-size: 9px; font-weight: 500; letter-spacing: .07em; text-align: left; text-transform: uppercase; }
+    #hyperset-ux-prototype .hs-table th, #hyperset-ux-prototype .hs-table td { padding: 10px 8px; border-bottom: 1px solid var(--hs-line); vertical-align: top; }
+    #hyperset-ux-prototype .hs-table td small { display: block; margin-top: 3px; color: var(--hs-muted); font-size: 10px; }
+    #hyperset-ux-prototype .hs-pill { display: inline-block; padding: 3px 6px; border-radius: 5px; font-family: var(--hs-mono); font-size: 9px; }
+    #hyperset-ux-prototype .hs-pill.green { color: var(--hs-green); background: var(--hs-green-soft); }
+    #hyperset-ux-prototype .hs-pill.amber { color: var(--hs-amber); background: var(--hs-amber-soft); }
+    #hyperset-ux-prototype .hs-pill.red { color: var(--hs-red); background: var(--hs-red-soft); }
+    #hyperset-ux-prototype .hs-trust { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 11px; padding: 13px; border: 1px solid #e4d7b9; border-radius: 10px; background: #fffaf0; }
+    #hyperset-ux-prototype .hs-trust-mark { width: 25px; height: 25px; display: grid; place-items: center; color: var(--hs-amber); border: 1px solid #eacb92; border-radius: 7px; background: #fff0d1; font-weight: 800; }
+    #hyperset-ux-prototype .hs-trust strong { display: block; font-size: 12px; }
+    #hyperset-ux-prototype .hs-trust small { display: block; margin-top: 3px; color: #856b46; font-size: 10px; line-height: 1.45; }
+    #hyperset-ux-prototype .hs-code { padding: 13px; overflow: auto; border: 1px solid #302d3c; border-radius: 9px; background: #23212d; color: #e8e2f5; font-family: var(--hs-mono); font-size: 10px; line-height: 1.6; white-space: pre; }
+    #hyperset-ux-prototype .hs-code .key { color: #bcaaff; }
+    #hyperset-ux-prototype .hs-code .string { color: #8ed8b4; }
+    #hyperset-ux-prototype .hs-code .comment { color: #8e899d; }
+    #hyperset-ux-prototype .hs-timeline { display: grid; gap: 0; margin-top: 4px; }
+    #hyperset-ux-prototype .hs-timeline-row { display: grid; grid-template-columns: 20px 1fr auto; gap: 9px; align-items: center; min-height: 33px; }
+    #hyperset-ux-prototype .hs-timeline-dot { width: 9px; height: 9px; margin-left: 5px; border: 2px solid var(--hs-purple); border-radius: 50%; background: var(--hs-white); }
+    #hyperset-ux-prototype .hs-timeline-row.done .hs-timeline-dot { border-color: var(--hs-green); background: var(--hs-green); }
+    #hyperset-ux-prototype .hs-timeline-row.current .hs-timeline-dot { box-shadow: 0 0 0 4px var(--hs-purple-soft); }
+    #hyperset-ux-prototype .hs-timeline-row span { font-size: 11px; }
+    #hyperset-ux-prototype .hs-timeline-row small { color: var(--hs-muted); font-family: var(--hs-mono); font-size: 9px; }
+    #hyperset-ux-prototype .hs-diff { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #hyperset-ux-prototype .hs-diff-pane { min-width: 0; padding: 12px; border: 1px solid var(--hs-line); border-radius: 9px; background: #faf9fc; }
+    #hyperset-ux-prototype .hs-diff-pane h3 { margin-bottom: 8px; color: var(--hs-muted); font-family: var(--hs-mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+    #hyperset-ux-prototype .hs-diff-line { padding: 4px 6px; border-radius: 4px; font-family: var(--hs-mono); font-size: 10px; line-height: 1.45; }
+    #hyperset-ux-prototype .hs-diff-line.removed { color: #97454f; background: #fff0f1; }
+    #hyperset-ux-prototype .hs-diff-line.added { color: #20754f; background: #eaf8f0; }
+    #hyperset-ux-prototype .hs-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 14px 0; }
+    #hyperset-ux-prototype .hs-flow-step { padding: 8px 9px; border: 1px solid var(--hs-line); border-radius: 7px; background: var(--hs-soft); font-size: 11px; }
+    #hyperset-ux-prototype .hs-flow-step.active { color: var(--hs-purple); border-color: #cfc2ff; background: var(--hs-purple-soft); font-weight: 700; }
+    #hyperset-ux-prototype .hs-arrow { color: #a49ab4; font-size: 14px; }
+    #hyperset-ux-prototype .hs-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; padding-top: 13px; color: var(--hs-muted); border-top: 1px solid var(--hs-line); font-family: var(--hs-mono); font-size: 9px; }
+    #hyperset-ux-prototype .hs-toast { position: fixed; right: 20px; bottom: 20px; display: none; padding: 10px 12px; color: #fff; border-radius: 8px; background: #2d2939; font-size: 12px; box-shadow: 0 8px 28px rgba(20, 16, 30, .2); }
+    #hyperset-ux-prototype .hs-toast.show { display: block; }
+    @media (max-width: 700px) {
+      #hyperset-ux-prototype .hs-topbar { align-items: flex-start; flex-wrap: wrap; padding: 13px 15px; }
+      #hyperset-ux-prototype .hs-security { margin-left: 35px; }
+      #hyperset-ux-prototype .hs-nav { padding: 9px 12px; }
+      #hyperset-ux-prototype .hs-body { display: block; }
+      #hyperset-ux-prototype .hs-rail { display: none; }
+      #hyperset-ux-prototype .hs-main { padding: 22px 15px 30px; }
+      #hyperset-ux-prototype .hs-grid, #hyperset-ux-prototype .hs-grid.three, #hyperset-ux-prototype .hs-diff, #hyperset-ux-prototype .hs-role-grid, #hyperset-ux-prototype .hs-use-strip, #hyperset-ux-prototype .hs-form-grid { grid-template-columns: 1fr; }
+      #hyperset-ux-prototype .hs-trust { grid-template-columns: auto 1fr; }
+      #hyperset-ux-prototype .hs-trust .hs-button { grid-column: 1 / -1; justify-self: start; }
+      #hyperset-ux-prototype .hs-footer { flex-direction: column; }
+    }
+  </style>
+
+  <header class="hs-topbar">
+    <div class="hs-brand"><span class="hs-mark">H</span><span>Hyperset</span><span class="hs-breadcrumb">/ Human trust surfaces</span></div>
+    <div class="hs-security"><span class="hs-dot"></span> local-only · proposal safe</div>
+  </header>
+  <nav class="hs-nav" aria-label="Prototype surfaces">
+    <button type="button" data-hs-view="setup" aria-pressed="true">Get started</button>
+    <button type="button" data-hs-view="explore" aria-pressed="false">Explore</button>
+    <button type="button" data-hs-view="review" aria-pressed="false">Review</button>
+    <button type="button" data-hs-view="operations" aria-pressed="false">Admin / Settings</button>
+    <button type="button" data-hs-view="api" aria-pressed="false">Integrate</button>
+  </nav>
+
+  <div class="hs-body">
+    <aside class="hs-rail" aria-label="Setup stages">
+      <p class="hs-rail-label">Start here</p>
+      <div class="hs-step active"><span class="hs-step-icon">✓</span><div><strong>Preflight</strong><small>All local prerequisites checked</small></div></div>
+      <div class="hs-step"><span class="hs-step-icon">✓</span><div><strong>Services</strong><small>API and database ready</small></div></div>
+      <div class="hs-step"><span class="hs-step-icon">✓</span><div><strong>Context</strong><small>Revenue snapshot @ abc1234</small></div></div>
+      <div class="hs-step pending"><span class="hs-step-icon">4</span><div><strong>First answer</strong><small>Run a governed sample</small></div></div>
+      <div class="hs-rail-note">A green service is not enough. The answer must also expose authority, evidence, and uncertainty.</div>
+    </aside>
+
+    <main class="hs-main">
+      <section class="hs-view active" data-hs-panel="setup">
+        <span class="hs-eyebrow">Start here</span>
+        <h1>What do you want to do?</h1>
+        <p class="hs-lede">Hyperset has a different path for each job. Pick the one that matches you; you can switch roles later from the top navigation.</p>
+        <div class="hs-role-grid">
+          <button type="button" class="hs-role-card" data-hs-view="explore"><span class="hs-role-icon">01</span><span><strong>I'm new — ask a question</strong><small>Use the explorer to ask, inspect trust, and understand the answer.</small></span><span class="hs-role-arrow">→</span></button>
+          <button type="button" class="hs-role-card" data-hs-view="operations"><span class="hs-role-icon">02</span><span><strong>I'm the admin</strong><small>Configure context sources, connections, models, and Git write-back.</small></span><span class="hs-role-arrow">→</span></button>
+          <button type="button" class="hs-role-card" data-hs-view="review"><span class="hs-role-icon">03</span><span><strong>I'm reviewing meaning</strong><small>Inspect evidence, refine a draft, and propose a PR for human merge.</small></span><span class="hs-role-arrow">→</span></button>
+          <button type="button" class="hs-role-card" data-hs-view="api"><span class="hs-role-icon">04</span><span><strong>I'm integrating Hyperset</strong><small>Use the HTTP/MCP contract and replay discover → resolve → validate.</small></span><span class="hs-role-arrow">→</span></button>
+        </div>
+        <div class="hs-panel soft"><div class="hs-panel-head"><div><h2>New user quick start</h2><p>You do not need to configure anything to explore the local demo.</p></div><span class="hs-status ready">3 steps</span></div><div class="hs-use-strip"><div class="hs-use-step"><strong>1 · Check ready</strong><small>Confirm the runtime and context snapshot.</small></div><div class="hs-use-step"><strong>2 · Ask</strong><small>Try “How much revenue did we make by region?”</small></div><div class="hs-use-step"><strong>3 · Trust</strong><small>Read the authority, evidence, and caveats before acting.</small></div></div><div class="hs-actions"><button class="hs-button primary" data-hs-view="explore">Start exploring →</button><button class="hs-button" data-hs-view="operations">Open admin settings</button></div></div>
+        <div class="hs-panel">
+          <div class="hs-panel-head"><div><h2>Setup status</h2><p>Checked just now · 7 checks · 1 warning</p></div><span class="hs-status warn"><span class="hs-dot"></span> ready with warning</span></div>
+          <div class="hs-grid three">
+            <div class="hs-stat"><span class="hs-kicker">Runtime</span><strong>Ready</strong><small>API · Postgres · OpenAI</small></div>
+            <div class="hs-stat"><span class="hs-kicker">Context</span><strong>abc1234</strong><small>revenue · main · valid snapshot</small></div>
+            <div class="hs-stat"><span class="hs-kicker">Evidence</span><strong>Awaiting sync</strong><small>0 corroborated Superset versions</small></div>
+          </div>
+          <div class="hs-actions"><button class="hs-button primary" data-hs-toast="Sample question queued">Run sample question</button><button class="hs-button" data-hs-toast="Diagnostics copied">Copy diagnostic command</button></div>
+        </div>
+        <div class="hs-panel soft"><div class="hs-panel-head"><div><h2>Next safe action</h2><p>Run the sample now, or sync the Superset connection first.</p></div><span class="hs-status warn">ref_awaiting_sync</span></div><p>The Git definition is authoritative. The warning only means observed source evidence has not been refreshed yet.</p></div>
+        <div class="hs-footer"><span>Setup contract v0.1</span><span>Local-only · no secrets in browser</span></div>
+      </section>
+
+      <section class="hs-view" data-hs-panel="explore">
+        <span class="hs-eyebrow">Explorer / new user</span>
+        <h1>Ask with context you can trust</h1>
+        <p class="hs-lede">Ask a question, inspect the trust card, then choose what to do next. Hyperset is read-only and does not execute warehouse queries.</p>
+        <div class="hs-use-strip"><div class="hs-use-step"><strong>1 · Ask</strong><small>Use plain business language.</small></div><div class="hs-use-step"><strong>2 · Inspect trust</strong><small>Check Git authority and observed evidence.</small></div><div class="hs-use-step"><strong>3 · Act safely</strong><small>Copy a request, refine, or open review.</small></div></div>
+        <div class="hs-panel">
+          <div class="hs-panel-head"><div><h2>How much recognized revenue did we make by region?</h2><p>Revenue analyst · governed-only · 18s elapsed</p></div><span class="hs-status warn"><span class="hs-dot"></span> governed with warning</span></div>
+          <div class="hs-trust"><span class="hs-trust-mark">!</span><div><strong>Governed definition; source corroboration pending</strong><small>Git authority: revenue · main · abc1234 · domains/revenue. Superset: awaiting sync · 0 corroborated versions. Required region join and recognized filter are included.</small></div><button class="hs-button" data-hs-toast="Evidence drawer opened">Inspect evidence</button></div>
+          <div class="hs-panel soft"><h2>Answer</h2><p>Recognized revenue is reported by the governed revenue definition at regional grain. The answer is ready to be evaluated against the external warehouse, but Hyperset did not execute the query.</p><div class="hs-actions"><button class="hs-button primary" data-hs-toast="API request copied">Copy reproducible request</button><button class="hs-button" data-hs-toast="Review task opened">Open review task</button></div></div>
+        </div>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>Resolution timeline</h2><p>One visible state per handoff</p></div><button class="hs-button" data-hs-toast="Turn stopped safely">Stop</button></div><div class="hs-timeline"><div class="hs-timeline-row done"><span class="hs-timeline-dot"></span><span>Catalog discovery <small>assist only</small></span><small>2.1s</small></div><div class="hs-timeline-row done"><span class="hs-timeline-dot"></span><span>Exact bundle resolution</span><small>3.4s</small></div><div class="hs-timeline-row current"><span class="hs-timeline-dot"></span><span>Evidence check <small>source sync pending</small></span><small>12.5s</small></div><div class="hs-timeline-row"><span class="hs-timeline-dot"></span><span>External plan validation</span><small>next</small></div></div></div>
+        <div class="hs-footer"><span>Connected · not “streaming”</span><span>Read-only · governed · observable</span></div>
+      </section>
+
+      <section class="hs-view" data-hs-panel="review">
+        <span class="hs-eyebrow">Reviewer / domain expert</span>
+        <h1>Review the meaning, not the mystery</h1>
+        <p class="hs-lede">Every task explains why it exists, what evidence supports it, what is changing, and what happens after a proposal.</p>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>Recognized revenue by region</h2><p>Someone asked which source and rules apply · task rvw-018</p></div><span class="hs-status warn">needs evidence</span></div>
+          <div class="hs-grid three"><div class="hs-stat"><span class="hs-kicker">Finding</span><strong>Undefined concept</strong><small>missing_context_v1 · medium confidence</small></div><div class="hs-stat"><span class="hs-kicker">Impact</span><strong>2 affected assets</strong><small>revenue dataset · region join</small></div><div class="hs-stat"><span class="hs-kicker">Freshness</span><strong>2 days old</strong><small>Superset observation · version 42</small></div></div>
+          <div class="hs-panel soft"><div class="hs-panel-head"><div><h2>Evidence map</h2><p>Typed so a proposal never looks like corroboration</p></div></div><table class="hs-table"><thead><tr><th>Type</th><th>Source</th><th>State</th></tr></thead><tbody><tr><td><span class="hs-pill green">Governed</span></td><td>Git revenue / abc1234<small>domains/revenue/manifest.yaml</small></td><td>Authority</td></tr><tr><td><span class="hs-pill amber">Observed</span></td><td>Superset dataset / version 42<small>last sync 2d ago</small></td><td>Conflict</td></tr><tr><td><span class="hs-pill red">Missing</span></td><td>Region ownership rule<small>no current corroboration</small></td><td>Needs evidence</td></tr></tbody></table></div>
+          <div class="hs-panel"><div class="hs-panel-head"><div><h2>Proposed change</h2><p>Git diff · 4 additions · 1 changed join</p></div><span class="hs-meta">row version 7</span></div><div class="hs-diff"><div class="hs-diff-pane"><h3>Current authority</h3><div class="hs-diff-line">term: recognized_revenue</div><div class="hs-diff-line removed">join: region → customer_region</div><div class="hs-diff-line">filter: status = recognized</div></div><div class="hs-diff-pane"><h3>Draft proposal</h3><div class="hs-diff-line">term: recognized_revenue</div><div class="hs-diff-line added">join: region → billing_region</div><div class="hs-diff-line">filter: status = recognized</div></div></div></div>
+          <div class="hs-actions"><button class="hs-button" data-hs-toast="Task deferred with rationale">Defer</button><button class="hs-button" data-hs-toast="Evidence request recorded">Needs evidence</button><button class="hs-button" data-hs-toast="Draft editor opened">Edit draft</button><button class="hs-button primary" data-hs-toast="Proposal preflight passed">Propose PR</button></div>
+        </div>
+        <div class="hs-footer"><span>Open queue · 3 tasks</span><span>Git merge remains approval</span></div>
+      </section>
+
+      <section class="hs-view" data-hs-panel="operations">
+        <span class="hs-eyebrow">Admin / Settings</span>
+        <h1>Configure Hyperset for your team</h1>
+        <p class="hs-lede">This is the admin home: configure the deployment, verify readiness, manage context sources and connections, and set the proposal-only Git target.</p>
+        <div class="hs-admin-nav" aria-label="Admin settings sections"><button type="button" class="active" data-hs-toast="Overview selected">Overview</button><button type="button" data-hs-toast="Context sources selected">Context sources</button><button type="button" data-hs-toast="Connections selected">Connections</button><button type="button" data-hs-toast="Models selected">Models</button><button type="button" data-hs-toast="Write-back selected">Write-back</button><button type="button" data-hs-toast="Security selected">Security</button></div>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>System readiness</h2><p>Last checked 12 seconds ago</p></div><span class="hs-status ready"><span class="hs-dot"></span> usable</span></div><div class="hs-grid three"><div class="hs-stat"><span class="hs-kicker">API + DB</span><strong>Ready</strong><small>liveness and readiness pass</small></div><div class="hs-stat"><span class="hs-kicker">Model</span><strong>OpenAI · GPT-5.6 Luna</strong><small>probe passed · embedding ready</small></div><div class="hs-stat"><span class="hs-kicker">Security</span><strong>Local-only</strong><small>no authenticated admin role</small></div></div></div>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>Settings · write-back target</h2><p>Used by Review to open proposal-only PRs. It never approves or merges.</p></div><span class="hs-status ready">preflight passed</span></div><div class="hs-form-grid"><label class="hs-field">Repository URL or local path<input value="context-repo" aria-label="Repository URL or local path" /></label><label class="hs-field">Base ref<input value="main" aria-label="Base ref" /></label><label class="hs-field">Manifest path<input value="domains/revenue" aria-label="Manifest path" /></label></div><div class="hs-form-grid" style="grid-template-columns: 1fr 2fr 1fr; margin-top: 10px;"><label class="hs-field">Token source<select aria-label="Token source"><option>Env var name</option><option>GitHub App</option><option>Encrypted token</option></select></label><label class="hs-field">Server-side token reference<input value="HYPERSET_WRITEBACK_TOKEN" aria-label="Server-side token reference" /></label><div></div></div><div class="hs-actions"><button class="hs-button primary" data-hs-toast="Settings saved safely">Save settings</button><button class="hs-button" data-hs-toast="Repository access tested">Test connection</button><button class="hs-button ghost" data-hs-toast="Review surface opened">Go to Review →</button></div></div>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>Context sources</h2><p>Authority is Git; sync only records an exact snapshot</p></div><button class="hs-button" data-hs-toast="Context status refreshed">Refresh</button></div><table class="hs-table"><thead><tr><th>Source</th><th>Serving</th><th>Last attempt</th><th>Action</th></tr></thead><tbody><tr><td>Playground context<small>revenue · main · examples/revenue</small></td><td><span class="hs-pill green">abc1234</span></td><td>2 min ago<small>valid snapshot</small></td><td><button class="hs-button" data-hs-toast="Sync started safely">Sync now</button></td></tr><tr><td>Superset metadata<small>configured connection</small></td><td><span class="hs-pill amber">awaiting sync</span></td><td>2 days ago<small>last valid observation retained</small></td><td><button class="hs-button" data-hs-toast="Connection test passed">Test</button></td></tr></tbody></table></div>
+        <div class="hs-panel soft"><div class="hs-panel-head"><div><h2>Admin handoff</h2><p>Once settings are ready, send reviewers to the queue or give developers an integration recipe.</p></div></div><div class="hs-actions"><button class="hs-button" data-hs-view="review">Open Review</button><button class="hs-button" data-hs-view="api">Open API / MCP</button><button class="hs-button" data-hs-toast="Redacted diagnostics copied">Copy diagnostics</button></div></div>
+        <div class="hs-footer"><span>Admin posture is visible</span><span>Available connector types ≠ configured connections</span></div>
+      </section>
+
+      <section class="hs-view" data-hs-panel="api">
+        <span class="hs-eyebrow">Developer / API + MCP</span>
+        <h1>Build trust into the call chain</h1>
+        <p class="hs-lede">HTTP and MCP expose the same three operations. Humans can replay the flow, inspect provenance, and copy a safe request before wiring an agent.</p>
+        <div class="hs-flow"><span class="hs-flow-step active">Discover</span><span class="hs-arrow">→</span><span class="hs-flow-step">Resolve</span><span class="hs-arrow">→</span><span class="hs-flow-step">Validate</span><span class="hs-arrow">→</span><span class="hs-flow-step">Execute externally</span></div>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>Resolve exact context</h2><p>HTTP · POST `/v0/resolve_analytics_context`</p></div><span class="hs-status ready">deterministic</span></div><div class="hs-code"><span class="comment">// exact directive chosen after assist discovery</span>
+<span class="key">{</span>
+  <span class="key">"query"</span>: <span class="string">"recognized revenue by region"</span>,
+  <span class="key">"directive"</span>: <span class="key">{</span>
+    <span class="key">"domains"</span>: [<span class="string">"revenue"</span>],
+    <span class="key">"concepts"</span>: [<span class="string">"recognized_revenue"</span>]
+  <span class="key">}</span>
+<span class="key">}</span></div><div class="hs-actions"><button class="hs-button primary" data-hs-toast="Request replayed read-only">Replay request</button><button class="hs-button" data-hs-toast="HTTP example copied">Copy HTTP</button><button class="hs-button" data-hs-toast="MCP example copied">Copy MCP</button></div></div>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>Response anatomy</h2><p>Never hide abstention or the difference between rules and execution</p></div><span class="hs-status warn">governed with warnings</span></div><div class="hs-grid three"><div class="hs-stat"><span class="hs-kicker">Resolution</span><strong>governed</strong><small>exact bundle resolved</small></div><div class="hs-stat"><span class="hs-kicker">Authority</span><strong>abc1234</strong><small>Git · main · revenue</small></div><div class="hs-stat"><span class="hs-kicker">Evidence</span><strong>0 observed</strong><small>3 refs awaiting sync</small></div></div><div class="hs-panel soft"><p><strong>Plan validation: conforms to governed rules.</strong> Hyperset did not run or check the query. The external runtime remains responsible for execution.</p></div></div>
+        <div class="hs-panel"><div class="hs-panel-head"><div><h2>MCP connection</h2><p>Streamable HTTP `http://localhost:8010/mcp` · stdio available</p></div><span class="hs-status ready">same contract</span></div><table class="hs-table"><tbody><tr><td>Transport</td><td>Streamable HTTP<small>fresh client connection</small></td></tr><tr><td>Auth posture</td><td>Local-only demo<small>do not expose without transport auth</small></td></tr><tr><td>Failure policy</td><td>Unknown codes fail closed<small>no silent promotion to governed meaning</small></td></tr></tbody></table></div>
+        <div class="hs-footer"><span>HTTP/MCP contract parity</span><span>Read-only replay · external execution</span></div>
+      </section>
+    </main>
+  </div>
+  <div class="hs-toast" role="status" aria-live="polite"></div>
+  <script>
+    (() => {
+      const root = document.getElementById("hyperset-ux-prototype");
+      const buttons = [...root.querySelectorAll("[data-hs-view]")];
+      const panels = [...root.querySelectorAll("[data-hs-panel]")];
+      const toast = root.querySelector(".hs-toast");
+      const show = (name) => {
+        buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.hsView === name)));
+        panels.forEach((panel) => panel.classList.toggle("active", panel.dataset.hsPanel === name));
+      };
+      buttons.forEach((button) => button.addEventListener("click", () => show(button.dataset.hsView)));
+      root.querySelectorAll("[data-hs-toast]").forEach((button) => button.addEventListener("click", () => {
+        toast.textContent = button.dataset.hsToast;
+        toast.classList.add("show");
+        window.setTimeout(() => toast.classList.remove("show"), 1800);
+      }));
+    })();
+  </script>
+</div>

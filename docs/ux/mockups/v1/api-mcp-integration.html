@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-api-mcp-integration" class="hs-v1-page">
+  <div class="hs-v1-window">
+    <header class="hs-v1-topbar"><div class="hs-v1-brand"><div class="hs-v1-mark" aria-hidden="true">H</div><span class="hs-v1-brand-name">Hyperset</span><span class="hs-v1-badge">API / MCP</span></div><nav aria-label="Integration navigation"><a href="#get-started">Get started</a><a href="#http" aria-current="page">HTTP</a><a href="#mcp">MCP</a><a href="#responses">Responses</a></nav><button class="hs-v1-button hs-v1-button-primary" type="button">Copy request</button></header>
+    <main class="hs-v1-main">
+      <div class="hs-v1-heading-row"><div><div class="hs-v1-kicker">Developer quickstart</div><h1>Call governed context</h1><p class="hs-v1-muted">Discover a candidate, resolve its exact meaning, then validate the plan before execution.</p></div><span class="hs-v1-status hs-v1-status-blue">HTTP + MCP</span></div>
+
+      <section class="hs-v1-panel hs-v1-panel-primary"><div class="hs-v1-section-heading"><div><h2>Discover context</h2><p class="hs-v1-muted">Use this first call when you have a natural-language question.</p></div><button class="hs-v1-button" type="button">Run example</button></div><pre class="hs-v1-code"><code>POST /v0/discover_analytics_context
+
+{
+  "query": "recognized revenue in Canada last quarter"
+}</code></pre><div class="hs-v1-divider"></div><div class="hs-v1-section-heading"><h3>Next result</h3><span class="hs-v1-status hs-v1-status-ready">2 candidates</span></div><p class="hs-v1-muted"><code>revenue.recognized</code> is the leading candidate. Resolve it before treating it as governed identity.</p><div class="hs-v1-button-row" style="margin-top:12px"><button class="hs-v1-button hs-v1-button-primary" type="button">Resolve exact</button><button class="hs-v1-button" type="button">Copy response</button></div></section>
+
+      <details class="hs-v1-details"><summary>Show resolve and validate operations</summary><div class="hs-v1-content-grid"><section><h3>Resolve</h3><pre class="hs-v1-code"><code>POST /v0/resolve_analytics_context
+
+{
+  "query": "recognized revenue in Canada last quarter",
+  "directive": { "domains": ["revenue"], "concepts": ["recognized_revenue"] }
+}</code></pre></section><section><h3>Validate</h3><pre class="hs-v1-code"><code>POST /v0/validate_analytics_plan
+
+{
+  "query": "recognized revenue in Canada last quarter",
+  "directive": { "domains": ["revenue"], "concepts": ["recognized_revenue"] },
+  "bundle_id": "cb-0123456789abcdef"
+}</code></pre></section></div><p class="hs-v1-small">Safe abstention is successful: preserve request ID and warnings when context is unresolved, stale, or conflicting.</p></details>
+    </main>
+  </div>
+</div>

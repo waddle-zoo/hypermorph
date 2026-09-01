@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-reviewer-context-preview" class="hs-v1-page">
+  <div class="hs-v1-window hs-v1-shell-window">
+    <aside class="hs-v1-rail" aria-label="Reviewer navigation">
+      <a class="hs-v1-rail-brand" href="#home"><span class="hs-v1-mark" aria-hidden="true">H</span><span>Hyperset<small>Northstar workspace</small></span></a>
+      <div class="hs-v1-rail-section"><a class="hs-v1-rail-link" href="#queue">◌ <span>Review queue</span></a><a class="hs-v1-rail-link" href="#chat">▱ <span>Chat</span></a><a class="hs-v1-rail-link" href="#explore">⌕ <span>Explore context</span></a></div>
+      <div class="hs-v1-rail-spacer"></div>
+      <div class="hs-v1-rail-section"><a class="hs-v1-rail-link" href="#notifications">◔ <span>Notifications</span></a><a class="hs-v1-rail-link" href="#settings">⚙ <span>Settings</span></a></div>
+      <div class="hs-v1-rail-divider"></div><button class="hs-v1-rail-profile" type="button"><span class="hs-v1-avatar" aria-hidden="true">MR</span><span class="hs-v1-rail-profile-copy"><strong>Maya Rodriguez</strong><span>Reviewer · account</span></span><span aria-hidden="true">···</span></button>
+    </aside>
+    <main class="hs-v1-shell-main">
+      <header class="hs-v1-shell-topline"><div><h1>Preview proposed context</h1><span>RV-1842 · read-only simulation</span></div><a class="hs-v1-button hs-v1-button-quiet" href="#task">← Back to task</a></header>
+      <div class="hs-v1-main">
+        <div class="hs-v1-heading-row"><div><div class="hs-v1-kicker">Same question · different context</div><h1>What was recognized revenue in Canada last quarter?</h1><p class="hs-v1-muted">This preview uses an ephemeral draft. The current Git authority continues serving.</p></div><span class="hs-v1-review-draft-state">Preview only</span></div>
+        <section class="hs-v1-panel"><div class="hs-v1-section-heading"><div><h2>Answer comparison</h2><p class="hs-v1-muted">Only the proposed context changes between these two runs.</p></div><span class="hs-v1-inline-state hs-v1-inline-state-ready">Both runs completed</span></div><div class="hs-v1-review-compare" style="margin-top:18px"><article class="hs-v1-compare-col"><h3>Current · serving</h3><p>Recognized revenue for Canada is not directly governed by a default region rule. The regional scope should be explicit.</p><span class="hs-v1-small">Governed · <code>abc1234</code></span></article><article class="hs-v1-compare-col hs-v1-compare-col-proposed"><h3>Proposed · draft</h3><p>Recognized revenue for Canada is calculated with the region filter by default for the selected reporting period.</p><span class="hs-v1-small">Draft overlay · not serving</span></article></div><div class="hs-v1-review-delta"><strong>Semantic delta:</strong> the proposed rule changes region from an explicit question scope to a default filter. Confirm that this is the intended meaning, not only a metric implementation detail.</div></section>
+        <section class="hs-v1-panel" style="margin-top:18px"><h2>Checks</h2><ul class="hs-v1-check-list" style="margin-top:9px"><li class="hs-v1-check-item"><div class="hs-v1-check-copy"><strong>Representative question</strong><span>Completed · answer changed as expected</span></div><span class="hs-v1-inline-state hs-v1-inline-state-ready">Pass</span></li><li class="hs-v1-check-item"><div class="hs-v1-check-copy"><strong>Authority boundary</strong><span>Current Git snapshot still serves for other users</span></div><span class="hs-v1-inline-state hs-v1-inline-state-ready">Safe</span></li><li class="hs-v1-check-item"><div class="hs-v1-check-copy"><strong>Regression set</strong><span>3 related revenue questions · 1 needs reviewer attention</span></div><span class="hs-v1-status hs-v1-status-warning">Review</span></li></ul></section>
+        <div class="hs-v1-button-row" style="margin-top:18px"><button class="hs-v1-button" type="button">Keep as draft</button><button class="hs-v1-button hs-v1-button-primary" type="button">Open GitHub proposal</button></div>
+        <p class="hs-v1-footer-note">Opening a proposal creates a branch and PR with the diff, evidence, preview results, and a backlink to RV-1842. It does not merge or change the serving snapshot.</p>
+      </div>
+    </main>
+  </div>
+</div>

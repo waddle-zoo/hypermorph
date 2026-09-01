@@ -1,0 +1,37 @@
+{
+  "capture": "baseline",
+  "discovered_entity_count": 6,
+  "entity_file_slugs": {
+    "urn:li:corpuser:datahub": "urn-li-corpuser-datahub",
+    "urn:li:corpuser:revenue_owner": "urn-li-corpuser-revenue-owner",
+    "urn:li:dataset:(urn:li:dataPlatform:postgres,analytics.public.finance_orders_daily,PROD)": "urn-li-dataset-urn-li-dataplatform-postgres-analytics-public-finance-orders-daily-prod",
+    "urn:li:dataset:(urn:li:dataPlatform:superset,ae48881d-334f-54a7-94e8-1ffcc73866e2,PROD)": "urn-li-dataset-urn-li-dataplatform-superset-ae48881d-334f-54a7-94e8-1ffcc73866e2-prod",
+    "urn:li:domain:revenue": "urn-li-domain-revenue",
+    "urn:li:glossaryTerm:recognized_revenue": "urn-li-glossaryterm-recognized-revenue"
+  },
+  "pinned_version": "v1.6.0",
+  "projected_entity_types": [
+    "CORP_USER",
+    "DATASET",
+    "DOMAIN",
+    "GLOSSARY_TERM"
+  ],
+  "projection_fingerprint": "d5a113bf3822144057da7378f5e951c75e76ea0bdda946c3792a248e1cfd5ffe",
+  "source": "datahub-oss",
+  "urns_by_asset_type": {
+    "corp_user": [
+      "urn:li:corpuser:datahub",
+      "urn:li:corpuser:revenue_owner"
+    ],
+    "dataset": [
+      "urn:li:dataset:(urn:li:dataPlatform:postgres,analytics.public.finance_orders_daily,PROD)",
+      "urn:li:dataset:(urn:li:dataPlatform:superset,ae48881d-334f-54a7-94e8-1ffcc73866e2,PROD)"
+    ],
+    "domain": [
+      "urn:li:domain:revenue"
+    ],
+    "glossary_term": [
+      "urn:li:glossaryTerm:recognized_revenue"
+    ]
+  }
+}

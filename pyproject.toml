@@ -1,0 +1,147 @@
+[project]
+name = "hyperset"
+version = "0.1.0"
+description = "Connector-driven analytics context and governance for AI agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "pyyaml>=6.0",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.1",
+    # Live read-only Superset REST transport (hyperset.connectors.superset.rest).
+    "requests>=2.32",
+    # The embedding adapter's default local-safe path (hyperset.embedding,
+    # hy-gh-206). A real dependency, not the `planner` extra's transitive one:
+    # the pinned local-safe provider is core V0 and its OpenAI-compatible
+    # client must be present without installing the agent SDK. This is the
+    # lightweight client (httpx + pydantic), not `openai-agents`, so it brings
+    # no web server -- the reason the agent SDK is kept out does not apply here.
+    "openai>=2.0",
+    # AES-256-GCM encryption at rest for the write-back token (hy-up4k, ADR
+    # 0026). A direct dependency because the encrypted token-source path is core
+    # admin config, not an optional surface; it was already resolved transitively.
+    "cryptography>=42",
+    # RS256 JWT signing for the GitHub App write-back auth (hy-bdhg, ADR 0027):
+    # the server signs a short-lived App JWT with the decrypted App private key to
+    # mint a per-op installation token. Core admin config, like `cryptography`.
+    "pyjwt>=2.8",
+]
+
+[project.optional-dependencies]
+# The planner path only (hy-0gq). Named for the SDK it installs rather than
+# for the package that uses it -- `hyperset/agent` is a path this repository
+# forbids by name, so an extra called `agent` points at the one word the
+# repo-shape gate exists to keep dead (hy-2yy).
+#
+# Kept out of the core install because the SDK
+# brings starlette, uvicorn and websockets with it, and
+# `hyperset/transport/http.py` justifies its own design with "the standard
+# library is the whole server": a customer installing hyperset for the
+# contract and the three operations should not acquire a web server because
+# an optional surface exists.
+planner = ["openai-agents>=0.19"]
+
+# The second vendor runtime (hy-2g31, GitHub #70). A SEPARATE extra rather
+# than part of `planner`, and the split carries a fact a version range cannot:
+# this SDK drives the `claude` CLI as a subprocess, so `pip install` is not
+# sufficient to make it work and a machine that has the package may still have
+# no runtime. It is also unusable for GitHub #25 -- no seed, no temperature,
+# hosted credential required -- so the benchmark must not acquire it by
+# installing the planner surface.
+planner-claude = [
+    "claude-agent-sdk>=0.2",
+]
+
+# The hosted MCP transport (hy-gh-117). The official MCP SDK brings starlette
+# and uvicorn -- a web framework -- so it is an extra for the same reason the
+# planner extra is: a core install that wants the contract and the operations
+# should not acquire a web server because an optional hosted MCP surface
+# exists. `serve mcp` (stdio and Streamable HTTP) imports it lazily and says
+# what to install when it is absent.
+mcp = [
+    "mcp>=1.28.1",
+    "uvicorn>=0.30",
+]
+
+# The benchmark harness (GitHub #25). Separate from `planner`, and the split is
+# the point: SCORING the committed recordings needs neither the SDK nor a
+# model -- that is exactly what ADR 0013's required gate claims -- while
+# RECORDING a live arm needs both. `hyperset evals score` therefore imports
+# nothing from here, and a machine that only scores installs neither extra.
+evals = ["inspect-ai>=0.3"]
+
+# Local PII redaction on the two operational write-backs (hy-hbtz): the
+# miss-log query text and the proposed manifest content. Presidio runs LOCALLY
+# with no network call, but `AnalyzerEngine` loads a spaCy NLP model that is a
+# SEPARATE install (`python -m spacy download en_core_web_lg`), not a version
+# range -- so installing this extra is necessary but not sufficient to host the
+# guard, the same "package present, runtime absent" split as `planner-claude`.
+# The guard detects that gap and fails closed. Off by default; nothing in the
+# core path imports presidio.
+pii = [
+    "presidio-analyzer>=2.2",
+    "presidio-anonymizer>=2.2",
+    "spacy>=3.7",
+]
+
+[project.scripts]
+hyperset = "hyperset.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1,<10",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["hyperset"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# One authoritative scope, so `ruff check .`/`ruff format --check .` -- the obvious
+# command -- gives the SAME answer as CI and the completion checklist, instead of the
+# gate passing while a bare `ruff .` fails (hy-6oqs; the disagreement that produced the
+# ad-hoc red-main fixes #395/#396). NO exclude: every Python tree under `.` is linted --
+# hyperset, tests, scripts, docker, playground (product), and .agents (executable
+# repo agent tooling, checked in here, not a live plugin sync). No product code and no
+# executable repo tooling is silently unlinted by the authoritative command. Anything
+# added here that a surface should NOT lint must be an EXPLICIT, tracked non-gate
+# surface with its own check and bead, never a bare exclude.
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+# hy-djml step 1: adopt a type checker with the LOOSEST configuration that still
+# runs, REPORT-ONLY. It is deliberately NOT wired into scripts/gate.py or CI, so
+# adopting the checker does not force the baseline to be paid down before the
+# check earns its keep. Until a gate lands, an annotation is still not enforced
+# evidence -- a reviewer may not cite `-> bool` as proof of a value's type.
+#
+# BASELINE at adoption (2026-08-16): the pinned invocation `uv run mypy hyperset`
+# under this config (mypy from the dev group) reports 131 errors in 36 files. The
+# number is tied to THIS invocation and config, not a bare `mypy` -- a different
+# mypy version or flag set reports a different count (the un-pinned
+# `uvx mypy --ignore-missing-imports` reported 165/38). Step 2 gates on NEW errors
+# only (recompute base vs head, strip line numbers, compare MULTISETS so a second
+# copy of an existing error is not counted new). Step 3 tightens module by module,
+# connectors first (where hy-yphh lives and values arrive from outside the process).
+python_version = "3.11"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: fast isolated unit tests",
+    "integration: tests exercising multiple components together",
+    "postgres: tests requiring a real Postgres instance (auto-skipped without Docker)",
+    "compose: tests requiring the Docker Compose platform (auto-skipped without Docker)",
+]

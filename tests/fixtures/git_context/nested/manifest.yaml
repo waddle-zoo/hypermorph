@@ -1,0 +1,58 @@
+# Customer-owned revenue context, in the narrow v0 layout hy-gh-43 pins.
+#
+# Source refs name stable table-level objects owned alongside pipeline code.
+# This example also opts into governing exact Superset datasets; those BI
+# overrides are corroborated against the pinned connector fixture.
+schema_version: 1
+domain: regional_revenue
+title: Recognized revenue by region, nested
+parent: revenue
+owners:
+  - team:finance-data
+context_doc: context.md
+evals: evals.yaml
+definitions:
+  - term: recognized_revenue
+    statement: >-
+      Revenue on the date an order becomes completed, net of tax, excluding
+      internal and test accounts.
+approved_sources:
+  - ref: table:postgres:analytics.public.finance_orders_daily
+    role: primary
+    reason: Completed orders with the tax split the definition requires.
+    bi_override:
+      ref: superset:dataset:ae48881d-334f-54a7-94e8-1ffcc73866e2
+      reason: This organization intentionally governs the published revenue dataset.
+  - ref: table:postgres:analytics.public.customer_dim
+    role: required_dimension
+    reason: Only source of the customer region attribute.
+    bi_override:
+      ref: superset:dataset:5bcf01e3-3f70-50d2-bb31-562b627b09b8
+      reason: This organization intentionally governs the published customer dataset.
+prohibited_sources:
+  - ref: table:postgres:analytics.public.raw_payments
+    reason: Double-counts partial captures and includes non-completed transactions.
+    bi_override:
+      ref: superset:dataset:6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4
+      reason: The legacy BI dataset exposes the prohibited payment-event model.
+fields:
+  - name: recognized_revenue
+    source_ref: table:postgres:analytics.public.finance_orders_daily
+    expression: SUM(gross_amount - tax_amount)
+  - name: region
+    source_ref: table:postgres:analytics.public.customer_dim
+    expression: customer_dim.region
+joins:
+  - from: finance_orders_daily.customer_id
+    to: customer_dim.customer_id
+    type: inner
+filters:
+  - finance_orders_daily.status = 'completed'
+  - customer_dim.is_test = false
+grain: order_date by customer_dim.region
+checks:
+  - recognized_revenue is non-negative
+  - monthly totals reconcile within 1% of the fixture close value
+caveats:
+  - Fixture recognition is not GAAP ASC 606 accounting guidance.
+  - Do not substitute payment-event dates for order dates.

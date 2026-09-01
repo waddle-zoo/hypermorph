@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="./mockup.css">
+
+<div id="hs-v1-mcp-setup-wizard" class="hs-v1-page">
+  <div class="hs-v1-window">
+    <header class="hs-v1-topbar"><div class="hs-v1-brand"><div class="hs-v1-mark" aria-hidden="true">H</div><span class="hs-v1-brand-name">Hyperset</span><span class="hs-v1-badge">Get started</span></div><nav aria-label="Regular-user navigation"><a href="#get-started" aria-current="page">Get started</a><a href="#chat">Chat</a><a href="#explore">Explore</a></nav><a class="hs-v1-button" href="#chat">Skip to Chat</a></header>
+    <main class="hs-v1-main">
+      <div class="hs-v1-heading-row"><div><div class="hs-v1-kicker">MCP setup</div><h1>Connect your agent to Hyperset</h1><p class="hs-v1-muted">Copy the config, test the endpoint, and start asking governed questions.</p></div><span class="hs-v1-status hs-v1-status-blue">HTTP + MCP</span></div>
+
+      <div class="hs-v1-content-grid">
+        <section class="hs-v1-panel"><h2>1. Configure your client</h2><form class="hs-v1-form" style="margin-top:16px"><div class="hs-v1-field"><label for="hs-v1-client">MCP client</label><select id="hs-v1-client" class="hs-v1-select"><option>Claude Desktop</option><option>Cursor</option><option>Custom MCP client</option></select></div><div class="hs-v1-field"><label for="hs-v1-transport">Transport</label><select id="hs-v1-transport" class="hs-v1-select"><option>Streamable HTTP (recommended)</option><option>stdio</option></select></div><div class="hs-v1-field"><label for="hs-v1-endpoint">Endpoint</label><input id="hs-v1-endpoint" class="hs-v1-input" type="url" value="http://localhost:8010/mcp"></div></form></section>
+        <section class="hs-v1-panel hs-v1-panel-primary"><div class="hs-v1-section-heading"><h2>2. Copy config</h2><button class="hs-v1-button" type="button">Copy</button></div><pre class="hs-v1-code"><code>{
+  "mcpServers": {
+    "hyperset": {
+      "url": "http://localhost:8010/mcp"
+    }
+  }
+}</code></pre><p class="hs-v1-small">Paste this into your MCP client's server settings.</p></section>
+      </div>
+
+      <section class="hs-v1-panel" style="margin-top:14px"><div class="hs-v1-section-heading"><div><h2>3. Test connection</h2><p class="hs-v1-muted">Run a bounded handshake before asking a real question.</p></div><button class="hs-v1-button hs-v1-button-primary" type="button">Run test</button></div><div class="hs-v1-step-list" style="margin-top:8px"><div class="hs-v1-step-item"><div class="hs-v1-step-copy"><strong>Endpoint reachable</strong><span>HTTP 200 · 48ms</span></div><span class="hs-v1-status hs-v1-status-ready">Passed</span></div><div class="hs-v1-step-item"><div class="hs-v1-step-copy"><strong>Tools discovered</strong><span>discover · resolve · validate</span></div><span class="hs-v1-status hs-v1-status-ready">Passed</span></div><div class="hs-v1-step-item"><div class="hs-v1-step-copy"><strong>Context ready</strong><span>Northstar snapshot <code>abc1234</code></span></div><span class="hs-v1-status hs-v1-status-ready">Passed</span></div></div><a class="hs-v1-button hs-v1-button-primary" href="#chat" style="margin-top:14px">Open Chat</a></section>
+
+      <details class="hs-v1-details"><summary>Need help?</summary><p class="hs-v1-muted">Read the <a href="#docs">HTTP/MCP guide</a> for response anatomy, auth, safe abstention, and recovery when a test fails.</p></details>
+    </main>
+  </div>
+</div>

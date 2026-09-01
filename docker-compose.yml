@@ -1,0 +1,813 @@
+# Local v0 platform (hy-gh-37).
+#
+# `docker compose up` (no profile) starts the CORE Hyperset stack:
+# `postgres` (Hyperset's own system of record) + `hyperset-migrate`
+# (one-shot `hyperset db upgrade`).
+#
+# `docker compose --profile demo up` additionally starts the pinned real
+# Superset 6.1.0 source environment: `superset-db` (Superset's own
+# metadata DB, logically separate from `postgres`), `analytics-db`
+# (deterministic revenue fixture data Superset queries), `superset-init`
+# (one-shot: version assertion + Superset's own official docker-init.sh +
+# minimal demo dataset bootstrap), and `superset` itself.
+#
+# The core stack also starts `api`: the two agent-facing operations
+# (resolve_analytics_context, validate_analytics_plan) over HTTP.
+#
+# `mcp` serves the same two operations over MCP's stdio transport, which is a
+# process a client spawns and owns rather than a port something connects to.
+# It is therefore profile-gated and started per client with
+# `docker compose run --rm -T mcp`, not left running by `up` with its stdin
+# closed.
+#
+# NOT YET INCLUDED, because the code they'd run doesn't exist yet:
+#   worker     -- offline processor, tracked by #38
+#   review-ui  -- domain-expert review app, tracked by #39
+# Adding a service here that has no real entrypoint would be a fake
+# placeholder, not a working service -- see docs/architecture.md's
+# implementation-status table for what exists today. `make status`
+# reports this gap explicitly rather than hiding it.
+#
+# All Superset pinning facts (image, exact tag+digest, official init
+# commands, feature flags) are recorded here and in `.env.example` --
+# nothing about the pinned target lives only in someone's memory.
+
+x-superset-image: &superset-image
+  # Explicit shared tag: without one, compose builds a separate image per
+  # service even when the build config is identical, so a rebuild of one
+  # service silently leaves the others on a stale cached image.
+  image: hyperset/superset-pinned:6.1.0
+  build:
+    context: .
+    dockerfile: docker/superset/Superset.Dockerfile
+  # Pinned exact tag + digest -- "preferably image digest" (hy-gh-37).
+  # docker/superset/Superset.Dockerfile FROMs this exact digest, only
+  # adding the Postgres driver the base image doesn't bundle. Re-verify
+  # with `docker pull apache/superset:6.1.0` and update the digest (both
+  # here in the compose comment and in the Dockerfile's ARG default) if
+  # the tag is ever force-moved upstream.
+  # apache/superset:6.1.0@sha256:fb3464528ec7076f91195f0ff7835755aa023e281f1bb78a84782ce7a36b3705
+
+# The Hyperset package image. Same "explicit shared tag" reasoning as above:
+# `hyperset-migrate` and the DataHub seed/capture jobs all run this one
+# image, choosing behavior per service, so a rebuild can't leave one of them
+# on a stale cached layer.
+#
+# The TAG is parameterised (hy-8uw0). An image tag is GLOBAL to the Docker daemon --
+# COMPOSE_PROJECT_NAME namespaces containers/networks/volumes but NOT tags -- so a fixed
+# `:dev` lets a concurrent seat or checkout build/serve the SAME tag out from under this one,
+# silently running tests against code that is not the code under test. Default `dev` keeps
+# `make up-demo` and a developer's build byte-for-byte the same; tests/compose FORCES a
+# per-run unique HYPERSET_IMAGE_TAG (keyed to its project name) so each run builds and reads
+# its OWN image and no run can serve another's.
+x-hyperset-image: &hyperset-image
+  image: hyperset/hyperset:${HYPERSET_IMAGE_TAG:-dev}
+  build:
+    context: .
+    dockerfile: docker/hyperset.Dockerfile
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${HYPERSET_DB_USER:-hyperset}
+      POSTGRES_PASSWORD: ${HYPERSET_DB_PASSWORD:?set in .env}
+      POSTGRES_DB: ${HYPERSET_DB_NAME:-hyperset}
+    volumes:
+      - hyperset-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${HYPERSET_DB_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${HYPERSET_DB_USER:-hyperset}"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    networks: [hyperset]
+
+  hyperset-migrate:
+    <<: *hyperset-image
+    command: ["db", "upgrade"]
+    environment:
+      HYPERSET_DATABASE_URL: postgresql+psycopg://${HYPERSET_DB_USER:-hyperset}:${HYPERSET_DB_PASSWORD:?set in .env}@postgres:5432/${HYPERSET_DB_NAME:-hyperset}
+      # Fetch-only mirrors of configured Git context repositories. Holds
+      # nothing authoritative -- every sync re-resolves the ref -- but a
+      # volume keeps a `docker compose run --rm` from re-cloning each time.
+      HYPERSET_CONTEXT_CACHE_DIR: /var/lib/hyperset/git-context
+    volumes:
+      # Make a checkout available for local Git-owned context sources. The
+      # reader still fetches and resolves an exact committed ref; this mount
+      # only makes the repository reachable from the migration container.
+      - .:/repo:ro
+      - hyperset-git-context-cache:/var/lib/hyperset/git-context
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks: [hyperset]
+
+  # The agent-facing operations plus the opt-in operator playground over HTTP
+  # (hy-oih). Agent routes execute no SQL; the playground routes own a bounded
+  # read-only demo query tool for evaluation only.
+  api:
+    <<: *hyperset-image
+    # `--host 0.0.0.0` IS DELIBERATE AND IS NOT REDUNDANT (hy-voes). The
+    # server's default is loopback, so a container started without this flag
+    # binds inside its own network namespace and the published port below
+    # answers nothing. Deleting it as noise is the exact mistake this comment
+    # exists to stop -- and if the default is ever widened again, this line is
+    # what keeps the container's exposure a choice rather than an inheritance.
+    # `tests/unit/transport/test_the_default_bind_is_loopback.py` fails if it
+    # goes missing.
+    command: ["serve", "http", "--host", "0.0.0.0", "--port", "8080"]
+    environment:
+      # The `0.0.0.0` bind above is non-loopback, so the server FAILS CLOSED at startup
+      # unless auth is configured OR the loopback-published topology is asserted (hy-w5ld,
+      # Option A). A container MUST bind `0.0.0.0` to answer a published port (hy-voes),
+      # so this demo publishes its port on the HOST'S LOOPBACK ONLY (`127.0.0.1:` in the
+      # `ports:` block below) and asserts that with HYPERSET_LOOPBACK_PUBLISHED. Effective
+      # exposure is loopback -- nothing is LAN-reachable -- which is exactly the overseer's
+      # rule (loopback/local = auth-off OK) enforced at the publish layer. This is NOT the
+      # removed blanket allow-insecure flag: a test binds this signal to a 127.0.0.1-only
+      # publish, so it cannot ship alongside a LAN publish. For a real network deployment,
+      # DELETE this line, publish on the network, and configure HYPERSET_AUTHZ_ENABLED +
+      # HYPERSET_OIDC_*.
+      HYPERSET_LOOPBACK_PUBLISHED: "1"
+      HYPERSET_AUTHZ_ENABLED: ${HYPERSET_AUTHZ_ENABLED:-false}
+      HYPERSET_OIDC_ISSUER: ${HYPERSET_OIDC_ISSUER:-}
+      HYPERSET_OIDC_AUDIENCE: ${HYPERSET_OIDC_AUDIENCE:-}
+      HYPERSET_OIDC_JWKS_URL: ${HYPERSET_OIDC_JWKS_URL:-}
+      HYPERSET_OIDC_ROLES_CLAIM: ${HYPERSET_OIDC_ROLES_CLAIM:-}
+      HYPERSET_OIDC_WORKSPACE_CLAIM: ${HYPERSET_OIDC_WORKSPACE_CLAIM:-}
+      HYPERSET_SESSION_SECRET: ${HYPERSET_SESSION_SECRET:-}
+      HYPERSET_OIDC_AUTHORIZATION_ENDPOINT: ${HYPERSET_OIDC_AUTHORIZATION_ENDPOINT:-}
+      HYPERSET_OIDC_TOKEN_ENDPOINT: ${HYPERSET_OIDC_TOKEN_ENDPOINT:-}
+      HYPERSET_OIDC_CLIENT_ID: ${HYPERSET_OIDC_CLIENT_ID:-}
+      HYPERSET_OIDC_REDIRECT_URI: ${HYPERSET_OIDC_REDIRECT_URI:-}
+      HYPERSET_OIDC_CLIENT_SECRET: ${HYPERSET_OIDC_CLIENT_SECRET:-}
+      HYPERSET_OIDC_SCOPES: ${HYPERSET_OIDC_SCOPES:-}
+      HYPERSET_DATABASE_URL: postgresql+psycopg://${HYPERSET_DB_USER:-hyperset}:${HYPERSET_DB_PASSWORD:?set in .env}@postgres:5432/${HYPERSET_DB_NAME:-hyperset}
+      # Admin > Context sources > Validate (and Sync) run their fetch-only Git op HERE, in the
+      # api container, so this service needs the SAME context topology the migrate service has:
+      # a reachable checkout of any local Git-owned source (the `/repo:ro` mount below) and the
+      # fetch cache dir. Without it, Validate fails with "not a git repository" for a source
+      # whose repository is a `/repo/...` path (hy-jba5i, QA f06ddc9). Fetch-only: the mount is
+      # read-only and the authority is still the exact committed ref, so the Git-authority
+      # boundary is intact -- Hyperset never writes the customer's repository.
+      HYPERSET_CONTEXT_CACHE_DIR: /var/lib/hyperset/git-context
+      # The playground is an explicitly enabled operator surface. Credentials
+      # remain server-side and Compose reads them from the repository .env.
+      HYPERSET_PLAYGROUND_ENABLED: ${HYPERSET_PLAYGROUND_ENABLED:-false}
+      HYPERSET_HTTP_BASE_URL: http://127.0.0.1:8080
+      HYPERSET_ANALYTICS_DB_URL: postgresql://${ANALYTICS_DB_USER:-analytics}:${ANALYTICS_DB_PASSWORD:?set in .env}@analytics-db:5432/${ANALYTICS_DB_NAME:-analytics}
+      HYPERSET_SUPERSET_BASE_URL: http://superset:8088
+      HYPERSET_DATAHUB_BASE_URL: http://datahub-gms:8080
+      HYPERSET_MODEL_PROVIDER: ${HYPERSET_MODEL_PROVIDER:-openai}
+      HYPERSET_PLAYGROUND_AGENTS_JSON: ${HYPERSET_PLAYGROUND_AGENTS_JSON:-}
+      HYPERSET_PLAYGROUND_MODELS_JSON: ${HYPERSET_PLAYGROUND_MODELS_JSON:-}
+      HYPERSET_PLAYGROUND_DEFAULT_AGENT: ${HYPERSET_PLAYGROUND_DEFAULT_AGENT:-}
+      HYPERSET_PLAYGROUND_DEFAULT_MODEL: ${HYPERSET_PLAYGROUND_DEFAULT_MODEL:-}
+      HYPERSET_OPENAI_MODEL: ${HYPERSET_OPENAI_MODEL:-gpt-5.6-luna}
+      HYPERSET_OPENAI_REASONING_EFFORT: ${HYPERSET_OPENAI_REASONING_EFFORT:-medium}
+      # gpt-5.6-luna is served by an OpenAI-COMPATIBLE gateway and, for some accounts, by
+      # the vendor OpenAI endpoint too. On the vendor default the playground confirms the
+      # model against the provider's GET /models: it is allowed if the account hosts it, and
+      # fails closed naming the mismatch (not a raw 401) if it does not (hy-yts5j, hy-ubd6t).
+      # Override HYPERSET_OPENAI_BASE_URL with your gateway if the vendor does not host it.
+      HYPERSET_OPENAI_BASE_URL: ${HYPERSET_OPENAI_BASE_URL:-https://api.openai.com/v1}
+      # The embedding provider for the served discover operation (hy-lgyb).
+      HYPERSET_EMBEDDING_PROVIDER: ${HYPERSET_EMBEDDING_PROVIDER:-openai}
+      HYPERSET_EMBEDDING_BASE_URL: ${HYPERSET_EMBEDDING_BASE_URL:-https://api.openai.com/v1}
+      HYPERSET_EMBEDDING_MODEL: ${HYPERSET_EMBEDDING_MODEL:-text-embedding-3-small}
+      # The embedding width the adapter pins and asks a hosted provider for. 768 preserves
+      # compatibility with existing indexes instead of taking the provider's 1536-d default.
+      HYPERSET_EMBEDDING_DIMENSIONS: ${HYPERSET_EMBEDDING_DIMENSIONS:-768}
+      # A hosted embedding endpoint authenticates with this key; discover/search ranks with
+      # the provider HERE, so it needs the key (hy-8vm34). Server-side only.
+      HYPERSET_EMBEDDING_API_KEY: ${HYPERSET_EMBEDDING_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # The key-encryption key for an encrypted-at-rest write-back token (hy-up4k,
+      # ADR 0026): base64 of 32 random bytes. Unset here by default -- the server
+      # then uses an EPHEMERAL key with a loud warning (tokens do not survive a
+      # restart), which is fine for a demo; set it for durable encrypted tokens.
+      HYPERSET_SECRET_KEY: ${HYPERSET_SECRET_KEY:-}
+    volumes:
+      # Mirror the migrate service's context topology so the api container can run the
+      # source Validate/Sync Git fetch (hy-jba5i). `/repo:ro` makes a local Git-owned source
+      # reachable (read-only -- the reader still fetches an exact committed ref); the cache
+      # volume holds the fetch-only mirrors, shared with migrate so a source primed by the
+      # demo sync is reused rather than re-cloned.
+      - .:/repo:ro
+      - hyperset-git-context-cache:/var/lib/hyperset/git-context
+    ports:
+      # HOST-LOOPBACK ONLY (hy-w5ld, Option A): publish on 127.0.0.1 so the demo is
+      # reachable from this host's browser but NOT from the LAN. Paired with
+      # HYPERSET_LOOPBACK_PUBLISHED above; a test enforces that pairing.
+      - "127.0.0.1:${HYPERSET_API_PORT:-8000}:8080"
+    healthcheck:
+      # `python`, not `curl`: the slim base image ships one and not the other.
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/v0/health')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    depends_on:
+      hyperset-migrate:
+        condition: service_completed_successfully
+    networks: [hyperset]
+
+  # The same operations over MCP stdio, spawned per client:
+  #   docker compose run --rm -T mcp
+  # Profile-gated because stdio has no port to wait on and `up` would leave it
+  # reading a closed stdin. The hosted HTTP transport is the `mcp-http` service
+  # below; this one stays for the stdio path.
+  mcp:
+    <<: *hyperset-image
+    profiles: [mcp]
+    command: ["serve", "mcp"]
+    environment:
+      HYPERSET_AUTHZ_ENABLED: ${HYPERSET_AUTHZ_ENABLED:-false}
+      HYPERSET_OIDC_ISSUER: ${HYPERSET_OIDC_ISSUER:-}
+      HYPERSET_OIDC_AUDIENCE: ${HYPERSET_OIDC_AUDIENCE:-}
+      HYPERSET_OIDC_JWKS_URL: ${HYPERSET_OIDC_JWKS_URL:-}
+      HYPERSET_OIDC_ROLES_CLAIM: ${HYPERSET_OIDC_ROLES_CLAIM:-}
+      HYPERSET_OIDC_WORKSPACE_CLAIM: ${HYPERSET_OIDC_WORKSPACE_CLAIM:-}
+      HYPERSET_SESSION_SECRET: ${HYPERSET_SESSION_SECRET:-}
+      HYPERSET_OIDC_AUTHORIZATION_ENDPOINT: ${HYPERSET_OIDC_AUTHORIZATION_ENDPOINT:-}
+      HYPERSET_OIDC_TOKEN_ENDPOINT: ${HYPERSET_OIDC_TOKEN_ENDPOINT:-}
+      HYPERSET_OIDC_CLIENT_ID: ${HYPERSET_OIDC_CLIENT_ID:-}
+      HYPERSET_OIDC_REDIRECT_URI: ${HYPERSET_OIDC_REDIRECT_URI:-}
+      HYPERSET_OIDC_CLIENT_SECRET: ${HYPERSET_OIDC_CLIENT_SECRET:-}
+      HYPERSET_OIDC_SCOPES: ${HYPERSET_OIDC_SCOPES:-}
+      HYPERSET_DATABASE_URL: postgresql+psycopg://${HYPERSET_DB_USER:-hyperset}:${HYPERSET_DB_PASSWORD:?set in .env}@postgres:5432/${HYPERSET_DB_NAME:-hyperset}
+      HYPERSET_MODEL_PROVIDER: ${HYPERSET_MODEL_PROVIDER:-openai}
+      HYPERSET_OPENAI_BASE_URL: ${HYPERSET_OPENAI_BASE_URL:-https://api.openai.com/v1}
+      HYPERSET_OPENAI_MODEL: ${HYPERSET_OPENAI_MODEL:-gpt-5.6-luna}
+      HYPERSET_OPENAI_REASONING_EFFORT: ${HYPERSET_OPENAI_REASONING_EFFORT:-medium}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      HYPERSET_EMBEDDING_PROVIDER: ${HYPERSET_EMBEDDING_PROVIDER:-openai}
+      HYPERSET_EMBEDDING_BASE_URL: ${HYPERSET_EMBEDDING_BASE_URL:-https://api.openai.com/v1}
+      HYPERSET_EMBEDDING_MODEL: ${HYPERSET_EMBEDDING_MODEL:-text-embedding-3-small}
+      HYPERSET_EMBEDDING_DIMENSIONS: ${HYPERSET_EMBEDDING_DIMENSIONS:-768}
+      HYPERSET_EMBEDDING_API_KEY: ${HYPERSET_EMBEDDING_API_KEY:-}
+      # The KEK is also required by the stdio client when a review proposal uses an
+      # encrypted write-back token. It is server-side only and is never emitted on
+      # the MCP protocol stream.
+      HYPERSET_SECRET_KEY: ${HYPERSET_SECRET_KEY:-}
+    stdin_open: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hyperset-migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    networks: [hyperset]
+
+  # The SAME operations over MCP Streamable HTTP, hosted on a PUBLISHED port so a
+  # fresh MCP client (MCP Inspector, a Claude Streamable HTTP connection, the
+  # README script) connects from OUTSIDE the stack -- the "test via MCP" demo
+  # pillar (hy-3kpk). Binds 0.0.0.0 in-container and publishes 8010, which does
+  # NOT collide with the `api` service's 8000. In the `demo` profile so
+  # `up-demo` starts it, and in `mcp` so it is reachable on its own.
+  mcp-http:
+    <<: *hyperset-image
+    profiles: [demo, mcp]
+    command: ["serve", "mcp", "--http", "--host", "0.0.0.0", "--port", "8010"]
+    environment:
+      # Same loopback-published topology as the `api` service (hy-w5ld, Option A): binds
+      # `0.0.0.0` in-container but its port is published on 127.0.0.1 only (below), and
+      # HYPERSET_LOOPBACK_PUBLISHED asserts it. Not LAN-reachable. For a real network
+      # deployment, delete this and configure HYPERSET_AUTHZ_ENABLED + HYPERSET_OIDC_*.
+      HYPERSET_LOOPBACK_PUBLISHED: "1"
+      HYPERSET_AUTHZ_ENABLED: ${HYPERSET_AUTHZ_ENABLED:-false}
+      HYPERSET_OIDC_ISSUER: ${HYPERSET_OIDC_ISSUER:-}
+      HYPERSET_OIDC_AUDIENCE: ${HYPERSET_OIDC_AUDIENCE:-}
+      HYPERSET_OIDC_JWKS_URL: ${HYPERSET_OIDC_JWKS_URL:-}
+      HYPERSET_OIDC_ROLES_CLAIM: ${HYPERSET_OIDC_ROLES_CLAIM:-}
+      HYPERSET_OIDC_WORKSPACE_CLAIM: ${HYPERSET_OIDC_WORKSPACE_CLAIM:-}
+      HYPERSET_SESSION_SECRET: ${HYPERSET_SESSION_SECRET:-}
+      HYPERSET_OIDC_AUTHORIZATION_ENDPOINT: ${HYPERSET_OIDC_AUTHORIZATION_ENDPOINT:-}
+      HYPERSET_OIDC_TOKEN_ENDPOINT: ${HYPERSET_OIDC_TOKEN_ENDPOINT:-}
+      HYPERSET_OIDC_CLIENT_ID: ${HYPERSET_OIDC_CLIENT_ID:-}
+      HYPERSET_OIDC_REDIRECT_URI: ${HYPERSET_OIDC_REDIRECT_URI:-}
+      HYPERSET_OIDC_CLIENT_SECRET: ${HYPERSET_OIDC_CLIENT_SECRET:-}
+      HYPERSET_OIDC_SCOPES: ${HYPERSET_OIDC_SCOPES:-}
+      HYPERSET_DATABASE_URL: postgresql+psycopg://${HYPERSET_DB_USER:-hyperset}:${HYPERSET_DB_PASSWORD:?set in .env}@postgres:5432/${HYPERSET_DB_NAME:-hyperset}
+      HYPERSET_MODEL_PROVIDER: ${HYPERSET_MODEL_PROVIDER:-openai}
+      HYPERSET_OPENAI_BASE_URL: ${HYPERSET_OPENAI_BASE_URL:-https://api.openai.com/v1}
+      HYPERSET_OPENAI_MODEL: ${HYPERSET_OPENAI_MODEL:-gpt-5.6-luna}
+      HYPERSET_OPENAI_REASONING_EFFORT: ${HYPERSET_OPENAI_REASONING_EFFORT:-medium}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # discover_analytics_context ranks with the embedding provider, so the MCP
+      # server needs the same hosted endpoint the api has, or discover 500s over MCP.
+      HYPERSET_EMBEDDING_PROVIDER: ${HYPERSET_EMBEDDING_PROVIDER:-openai}
+      HYPERSET_EMBEDDING_BASE_URL: ${HYPERSET_EMBEDDING_BASE_URL:-https://api.openai.com/v1}
+      HYPERSET_EMBEDDING_MODEL: ${HYPERSET_EMBEDDING_MODEL:-text-embedding-3-small}
+      # The MCP server ranks with the same embedding space the api does, so it needs the SAME
+      # width or its index disagrees; set 768 with provider=openai (hy-zakwj). Empty keeps 768.
+      HYPERSET_EMBEDDING_DIMENSIONS: ${HYPERSET_EMBEDDING_DIMENSIONS:-768}
+      # discover ranks with the embedding provider HERE too, so the MCP server needs the SAME
+      # embedding key the api has -- without it a provider=openai deployment ranks unauthenticated
+      # over MCP (hy-8vm34).
+      HYPERSET_EMBEDDING_API_KEY: ${HYPERSET_EMBEDDING_API_KEY:-}
+      # The KEK, so a propose_review_to_git over MCP can decrypt an encrypted
+      # write-back token the same way the api does.
+      HYPERSET_SECRET_KEY: ${HYPERSET_SECRET_KEY:-}
+    ports:
+      # HOST-LOOPBACK ONLY (hy-w5ld, Option A): reachable from this host, not the LAN.
+      - "127.0.0.1:${HYPERSET_MCP_HTTP_PORT:-8010}:8010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hyperset-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      # The port is listening once uvicorn is up; enough for `up --wait` to
+      # release, and the client handshake is what the compose test then drives.
+      test: ["CMD-SHELL", "python -c \"import socket; socket.create_connection(('127.0.0.1', 8010), 2).close()\""]
+      interval: 2s
+      timeout: 5s
+      retries: 40
+    networks: [hyperset]
+
+  # --- demo profile: real pinned Superset source environment ---
+
+  superset-db:
+    image: postgres:16
+    profiles: [demo]
+    environment:
+      POSTGRES_USER: ${SUPERSET_DB_USER:-superset}
+      POSTGRES_PASSWORD: ${SUPERSET_DB_PASSWORD:?set in .env}
+      POSTGRES_DB: ${SUPERSET_DB_NAME:-superset}
+    volumes:
+      - superset-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SUPERSET_DB_USER:-superset}"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    networks: [hyperset]
+
+  analytics-db:
+    image: postgres:16
+    profiles: [demo]
+    environment:
+      POSTGRES_USER: ${ANALYTICS_DB_USER:-analytics}
+      POSTGRES_PASSWORD: ${ANALYTICS_DB_PASSWORD:?set in .env}
+      POSTGRES_DB: ${ANALYTICS_DB_NAME:-analytics}
+    volumes:
+      - analytics-db-data:/var/lib/postgresql/data
+      - ./docker/analytics-db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${ANALYTICS_DB_PORT_HOST:-55434}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ANALYTICS_DB_USER:-analytics}"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    networks: [hyperset]
+
+  superset-init:
+    <<: *superset-image
+    profiles: [demo]
+    entrypoint: ["/bin/bash", "/hyperset-demo/init.sh"]
+    environment:
+      SUPERSET_PINNED_VERSION: "6.1.0"
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?set in .env}
+      SUPERSET__SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://${SUPERSET_DB_USER:-superset}:${SUPERSET_DB_PASSWORD:?set in .env}@superset-db:5432/${SUPERSET_DB_NAME:-superset}
+      ANALYTICS_DATABASE_URI: postgresql+psycopg2://${ANALYTICS_DB_USER:-analytics}:${ANALYTICS_DB_PASSWORD:?set in .env}@analytics-db:5432/${ANALYTICS_DB_NAME:-analytics}
+      SUPERSET_URL: http://superset:8088
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set in .env}
+      ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set in .env}
+    volumes:
+      - superset-home:/app/superset_home
+      - ./docker/superset:/hyperset-demo:ro
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      analytics-db:
+        condition: service_healthy
+    restart: "no"
+    networks: [hyperset]
+
+  superset:
+    <<: *superset-image
+    profiles: [demo]
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?set in .env}
+      SUPERSET__SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://${SUPERSET_DB_USER:-superset}:${SUPERSET_DB_PASSWORD:?set in .env}@superset-db:5432/${SUPERSET_DB_NAME:-superset}
+      SUPERSET_PORT: "8088"
+      SUPERSET_APP_ROOT: ""
+    volumes:
+      - superset-home:/app/superset_home
+    ports:
+      - "${SUPERSET_PORT_HOST:-8088}:8088"
+    healthcheck:
+      test: ["CMD", "/app/docker/docker-healthcheck.sh"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      analytics-db:
+        condition: service_healthy
+      superset-init:
+        condition: service_completed_successfully
+    networks: [hyperset]
+
+  # Runs after `superset` is actually serving (unlike superset-init, which
+  # only prepares the DB before the webserver starts) -- bootstraps the
+  # minimal deterministic demo dataset via Superset's own REST API.
+  # Idempotent: re-running does not create duplicate database/dataset
+  # entries.
+  superset-demo-bootstrap:
+    <<: *superset-image
+    profiles: [demo]
+    entrypoint: ["python3", "/hyperset-demo/demo_bootstrap.py"]
+    environment:
+      SUPERSET_URL: http://superset:8088
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set in .env}
+      ANALYTICS_DATABASE_URI: postgresql+psycopg2://${ANALYTICS_DB_USER:-analytics}:${ANALYTICS_DB_PASSWORD:?set in .env}@analytics-db:5432/${ANALYTICS_DB_NAME:-analytics}
+    volumes:
+      - ./docker/superset:/hyperset-demo:ro
+    depends_on:
+      superset:
+        condition: service_healthy
+    restart: "no"
+    networks: [hyperset]
+
+  # Adds the charts and the dashboard the revenue seed has no reason to carry:
+  # a dataset's use is only countable from chart --queries--> dataset and
+  # dashboard --contains--> chart. Seeds onto the revenue datasets rather than
+  # new ones, so `demo-evidence`'s own captured payloads are untouched.
+  # Idempotent, like the bootstrap it extends.
+  superset-usage-bootstrap:
+    <<: *superset-image
+    profiles: [demo]
+    entrypoint: ["python3", "/hyperset-demo/demo_usage_bootstrap.py"]
+    environment:
+      SUPERSET_URL: http://superset:8088
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set in .env}
+      ANALYTICS_DATABASE_URI: postgresql+psycopg2://${ANALYTICS_DB_USER:-analytics}:${ANALYTICS_DB_PASSWORD:?set in .env}@analytics-db:5432/${ANALYTICS_DB_NAME:-analytics}
+    volumes:
+      - ./docker/superset:/hyperset-demo:ro
+    depends_on:
+      superset-demo-bootstrap:
+        condition: service_completed_successfully
+    restart: "no"
+    networks: [hyperset]
+
+  # The reference evidence: one real dashboard export ZIP (dashboard, charts,
+  # datasets, database) plus the chart/dashboard REST bodies that pin what 6.1.0
+  # really discloses for these types -- `uuid` on every one of them, plus
+  # `datasource_uuid` and `position_json` for the references. So the live read
+  # covering only databases and datasets is this connector's limit, not the
+  # source's.
+  # Separate output mount from `demo-evidence`: the revenue set's sha256s are
+  # pinned elsewhere and nothing here may rewrite them.
+  usage-evidence:
+    <<: *superset-image
+    profiles: [demo]
+    entrypoint: ["python3", "/hyperset-demo/demo_usage_evidence.py"]
+    environment:
+      SUPERSET_URL: http://superset:8088
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set in .env}
+      SUPERSET_PINNED_VERSION: "6.1.0"
+      ANALYTICS_DATABASE_URI: postgresql+psycopg2://${ANALYTICS_DB_USER:-analytics}:${ANALYTICS_DB_PASSWORD:?set in .env}@analytics-db:5432/${ANALYTICS_DB_NAME:-analytics}
+      ANALYTICS_DB_PASSWORD: ${ANALYTICS_DB_PASSWORD:?set in .env}
+      SUPERSET_DB_PASSWORD: ${SUPERSET_DB_PASSWORD:?set in .env}
+      EVIDENCE_OUTPUT_DIR: /evidence
+    volumes:
+      - ./docker/superset:/hyperset-demo:ro
+      - ./tests/fixtures/superset/6.1.0/usage:/evidence
+    depends_on:
+      superset-usage-bootstrap:
+        condition: service_completed_successfully
+    restart: "no"
+    networks: [hyperset]
+
+  demo-export:
+    <<: *superset-image
+    profiles: [demo]
+    entrypoint: ["python3", "/hyperset-demo/demo_generate_export.py"]
+    environment:
+      SUPERSET_URL: http://superset:8088
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set in .env}
+      SUPERSET_PINNED_VERSION: "6.1.0"
+      EXPORT_OUTPUT_DIR: /exports
+    volumes:
+      - ./docker/superset:/hyperset-demo:ro
+      - ./demo/revenue/superset:/exports
+    depends_on:
+      superset-demo-bootstrap:
+        condition: service_completed_successfully
+    restart: "no"
+    networks: [hyperset]
+
+  # Authoritative Gate A evidence: unmodified official export ZIP plus live
+  # REST list/detail payloads for the same deterministic source objects.
+  demo-evidence:
+    <<: *superset-image
+    profiles: [demo]
+    entrypoint: ["python3", "/hyperset-demo/demo_evidence.py"]
+    environment:
+      SUPERSET_URL: http://superset:8088
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set in .env}
+      SUPERSET_PINNED_VERSION: "6.1.0"
+      ANALYTICS_DATABASE_URI: postgresql+psycopg2://${ANALYTICS_DB_USER:-analytics}:${ANALYTICS_DB_PASSWORD:?set in .env}@analytics-db:5432/${ANALYTICS_DB_NAME:-analytics}
+      ANALYTICS_DB_PASSWORD: ${ANALYTICS_DB_PASSWORD:?set in .env}
+      SUPERSET_DB_PASSWORD: ${SUPERSET_DB_PASSWORD:?set in .env}
+      EVIDENCE_OUTPUT_DIR: /evidence
+    volumes:
+      - ./docker/superset:/hyperset-demo:ro
+      - ./tests/fixtures/superset/6.1.0/revenue:/evidence
+    depends_on:
+      superset-demo-bootstrap:
+        condition: service_completed_successfully
+    restart: "no"
+    networks: [hyperset]
+
+  # --- datahub profile: real pinned DataHub OSS v1.6.0 source environment ---
+  #
+  # Derived from DataHub's own quickstart compose at tag v1.6.0
+  # (docker/quickstart/docker-compose-without-neo4j.quickstart.yml), with
+  # three deliberate reductions, each recorded in
+  # `docs/research/datahub-graphql-v1.md`:
+  #
+  #   1. Service names are `datahub-` prefixed, because this file already
+  #      owns `postgres`; every upstream host reference is rewritten to the
+  #      prefixed name rather than relying on `hostname:` resolution.
+  #   2. `datahub-frontend-react` and `datahub-actions` are not started.
+  #      Hyperset reads GMS's GraphQL API directly; the React UI and the
+  #      actions framework serve neither the sync nor its tests, and this
+  #      stack must coexist with the Superset demo profile inside one
+  #      Docker memory budget.
+  #   3. Upstream's `kafka-setup` job is not started. It only pre-creates
+  #      topics when `DATAHUB_PRECREATE_TOPICS=true`, which quickstart
+  #      itself defaults to false, and it publishes no image past v1.2.0 --
+  #      so at v1.6.0 there is nothing to pin and nothing for it to do.
+  #      `datahub-upgrade` therefore waits on schema-registry directly.
+  #
+  # Everything else (env, healthchecks, JVM sizing, the SystemUpdate
+  # bootstrap job) is upstream's, unchanged.
+
+  datahub-mysql:
+    image: mysql:8.2
+    profiles: [datahub]
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: datahub
+      MYSQL_USER: ${DATAHUB_MYSQL_USER:-datahub}
+      MYSQL_PASSWORD: ${DATAHUB_MYSQL_PASSWORD:?set in .env}
+      MYSQL_ROOT_PASSWORD: ${DATAHUB_MYSQL_PASSWORD:?set in .env}
+      MYSQL_ROOT_HOST: "%"
+    healthcheck:
+      test: mysqladmin ping -h datahub-mysql -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    volumes:
+      - datahub-mysql-data:/var/lib/mysql
+    networks: [hyperset]
+
+  datahub-elasticsearch:
+    image: elasticsearch:7.10.1
+    profiles: [datahub]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms256m -Xmx512m -Dlog4j2.formatMsgNoLookups=true
+    healthcheck:
+      test: curl -sS --fail "http://datahub-elasticsearch:9200/_cluster/health?wait_for_status=yellow&timeout=0s"
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    volumes:
+      - datahub-es-data:/usr/share/elasticsearch/data
+    networks: [hyperset]
+
+  datahub-zookeeper:
+    image: confluentinc/cp-zookeeper:7.9.2
+    profiles: [datahub]
+    environment:
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+    healthcheck:
+      test: echo srvr | nc datahub-zookeeper 2181
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - datahub-zk-data:/var/lib/zookeeper/data
+      - datahub-zk-logs:/var/lib/zookeeper/log
+    networks: [hyperset]
+
+  datahub-broker:
+    image: confluentinc/cp-kafka:7.9.2
+    profiles: [datahub]
+    environment:
+      KAFKA_BROKER_ID: "1"
+      KAFKA_ZOOKEEPER_CONNECT: datahub-zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://datahub-broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+      KAFKA_MESSAGE_MAX_BYTES: "5242880"
+      KAFKA_MAX_MESSAGE_BYTES: "5242880"
+    healthcheck:
+      test: nc -z datahub-broker 9092
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    depends_on:
+      datahub-zookeeper:
+        condition: service_healthy
+    volumes:
+      - datahub-broker-data:/var/lib/kafka/data/
+    networks: [hyperset]
+
+  datahub-schema-registry:
+    image: confluentinc/cp-schema-registry:7.9.2
+    profiles: [datahub]
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schemaregistry
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: datahub-broker:29092
+    healthcheck:
+      test: nc -z datahub-schema-registry 8081
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    depends_on:
+      datahub-broker:
+        condition: service_healthy
+    networks: [hyperset]
+
+  # Upstream's one-shot SystemUpdate job: creates the MySQL schema and the
+  # Elasticsearch indices GMS expects. GMS refuses to serve without it.
+  datahub-upgrade:
+    image: acryldata/datahub-upgrade:v1.6.0
+    profiles: [datahub]
+    command: ["-u", "SystemUpdate"]
+    environment:
+      DATAHUB_SQL_SETUP_ENABLED: "true"
+      EBEAN_DATASOURCE_USERNAME: ${DATAHUB_MYSQL_USER:-datahub}
+      EBEAN_DATASOURCE_PASSWORD: ${DATAHUB_MYSQL_PASSWORD:?set in .env}
+      EBEAN_DATASOURCE_HOST: datahub-mysql:3306
+      EBEAN_DATASOURCE_URL: jdbc:mysql://datahub-mysql:3306/datahub?verifyServerCertificate=false&useSSL=true&useUnicode=yes&characterEncoding=UTF-8
+      EBEAN_DATASOURCE_DRIVER: com.mysql.jdbc.Driver
+      KAFKA_BOOTSTRAP_SERVER: datahub-broker:29092
+      KAFKA_SCHEMAREGISTRY_URL: http://datahub-schema-registry:8081
+      ELASTICSEARCH_HOST: datahub-elasticsearch
+      ELASTICSEARCH_PORT: "9200"
+      ELASTICSEARCH_INDEX_BUILDER_MAPPINGS_REINDEX: "true"
+      ELASTICSEARCH_INDEX_BUILDER_SETTINGS_REINDEX: "true"
+      ELASTICSEARCH_BUILD_INDICES_CLONE_INDICES: "false"
+      GRAPH_SERVICE_IMPL: elasticsearch
+      DATAHUB_GMS_HOST: datahub-gms
+      DATAHUB_GMS_PORT: "8080"
+      ENTITY_REGISTRY_CONFIG_PATH: /datahub/datahub-gms/resources/entity-registry.yml
+      BACKFILL_BROWSE_PATHS_V2: "true"
+      REPROCESS_DEFAULT_BROWSE_PATHS_V2: "false"
+      # GMS and its setup job refuse to start without a token-service
+      # signing key, even with METADATA_SERVICE_AUTH_ENABLED=false:
+      # `DataHubTokenServiceFactory.validate` throws
+      # "authentication.tokenService.signingKey must be set and not be
+      # empty". Local-dev throwaway values, never a real secret.
+      DATAHUB_TOKEN_SERVICE_SIGNING_KEY: ${DATAHUB_TOKEN_SERVICE_SIGNING_KEY:?set in .env}
+      DATAHUB_TOKEN_SERVICE_SALT: ${DATAHUB_TOKEN_SERVICE_SALT:?set in .env}
+    depends_on:
+      datahub-mysql:
+        condition: service_healthy
+      datahub-elasticsearch:
+        condition: service_healthy
+      datahub-schema-registry:
+        condition: service_healthy
+    restart: "no"
+    networks: [hyperset]
+
+  datahub-gms:
+    image: acryldata/datahub-gms:v1.6.0
+    profiles: [datahub]
+    environment:
+      DATAHUB_SERVER_TYPE: quickstart
+      # Off by default upstream; off here too, and stated rather than
+      # inherited silently -- a local pinned source must not phone home.
+      DATAHUB_TELEMETRY_ENABLED: "false"
+      DATAHUB_UPGRADE_HISTORY_KAFKA_CONSUMER_GROUP_ID: generic-duhe-consumer-job-client-gms
+      EBEAN_DATASOURCE_DRIVER: com.mysql.jdbc.Driver
+      EBEAN_DATASOURCE_HOST: datahub-mysql:3306
+      EBEAN_DATASOURCE_USERNAME: ${DATAHUB_MYSQL_USER:-datahub}
+      EBEAN_DATASOURCE_PASSWORD: ${DATAHUB_MYSQL_PASSWORD:?set in .env}
+      EBEAN_DATASOURCE_URL: jdbc:mysql://datahub-mysql:3306/datahub?verifyServerCertificate=false&useSSL=true&useUnicode=yes&characterEncoding=UTF-8
+      ELASTICSEARCH_HOST: datahub-elasticsearch
+      ELASTICSEARCH_PORT: "9200"
+      ELASTICSEARCH_INDEX_BUILDER_MAPPINGS_REINDEX: "true"
+      ELASTICSEARCH_INDEX_BUILDER_SETTINGS_REINDEX: "true"
+      ENTITY_REGISTRY_CONFIG_PATH: /datahub/datahub-gms/resources/entity-registry.yml
+      ENTITY_SERVICE_ENABLE_RETENTION: "true"
+      ES_BULK_REFRESH_POLICY: NONE
+      GRAPH_SERVICE_DIFF_MODE_ENABLED: "true"
+      GRAPH_SERVICE_IMPL: elasticsearch
+      JAVA_OPTS: -Xms1g -Xmx1g
+      KAFKA_BOOTSTRAP_SERVER: datahub-broker:29092
+      KAFKA_SCHEMAREGISTRY_URL: http://datahub-schema-registry:8081
+      MAE_CONSUMER_ENABLED: "true"
+      MCE_CONSUMER_ENABLED: "true"
+      METADATA_SERVICE_AUTH_ENABLED: ${DATAHUB_METADATA_SERVICE_AUTH_ENABLED:-false}
+      PE_CONSUMER_ENABLED: "true"
+      UI_INGESTION_ENABLED: "false"
+      DATAHUB_TOKEN_SERVICE_SIGNING_KEY: ${DATAHUB_TOKEN_SERVICE_SIGNING_KEY:?set in .env}
+      DATAHUB_TOKEN_SERVICE_SALT: ${DATAHUB_TOKEN_SERVICE_SALT:?set in .env}
+    healthcheck:
+      test: curl -sS --fail http://datahub-gms:8080/health
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 90s
+    ports:
+      - "${DATAHUB_GMS_PORT_HOST:-8090}:8080"
+    depends_on:
+      datahub-upgrade:
+        condition: service_completed_successfully
+    networks: [hyperset]
+
+  # Seeds the canonical revenue evidence ADR 0010 asks DataHub to supply:
+  # catalog identity, domain, ownership, one glossary term, and one explicit
+  # lineage edge to the Superset-backed warehouse table. Idempotent, so
+  # re-running leaves an already-seeded instance unchanged and Hyperset's
+  # resync stays a no-op.
+  #
+  # Also drives the one controlled metadata change the acceptance tests
+  # need, via `run --rm datahub-seed apply` / `restore`.
+  datahub-seed:
+    <<: *hyperset-image
+    profiles: [datahub]
+    entrypoint: ["uv", "run", "python3", "/hyperset-datahub/seed_revenue.py"]
+    command: ["seed"]
+    environment:
+      DATAHUB_GMS_URL: http://datahub-gms:8080
+      HYPERSET_DATAHUB_TOKEN: ${HYPERSET_DATAHUB_TOKEN:-}
+    volumes:
+      - ./docker/datahub:/hyperset-datahub:ro
+    depends_on:
+      datahub-gms:
+        condition: service_healthy
+    restart: "no"
+    networks: [hyperset]
+
+  # Records the real GraphQL response bodies for exactly the queries the
+  # connector sends, so `tests/fake_datahub.py` replays real v1.6.0 shapes
+  # offline. Refuses to write if the instance is not the pinned version.
+  datahub-evidence:
+    <<: *hyperset-image
+    profiles: [datahub]
+    entrypoint: ["uv", "run", "python3", "/hyperset-datahub/capture_evidence.py"]
+    command: ["baseline"]
+    environment:
+      DATAHUB_GMS_URL: http://datahub-gms:8080
+      DATAHUB_PINNED_VERSION: v1.6.0
+      HYPERSET_DATAHUB_TOKEN: ${HYPERSET_DATAHUB_TOKEN:-}
+      EVIDENCE_OUTPUT_DIR: /evidence
+    volumes:
+      - ./docker/datahub:/hyperset-datahub:ro
+      - ./tests/fixtures/datahub/v1.6.0/revenue:/evidence
+    depends_on:
+      datahub-seed:
+        condition: service_completed_successfully
+    restart: "no"
+    networks: [hyperset]
+
+networks:
+  hyperset:
+
+volumes:
+  hyperset-postgres-data:
+  hyperset-git-context-cache:
+  superset-db-data:
+  analytics-db-data:
+  superset-home:
+  datahub-mysql-data:
+  datahub-es-data:
+  datahub-zk-data:
+  datahub-zk-logs:
+  datahub-broker-data:

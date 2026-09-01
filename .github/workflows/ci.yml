@@ -1,0 +1,195 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # Its own job, not a step in `test`, so it reports separately in under a
+  # minute and does not wait on Docker or Postgres. Reportable, not
+  # requireable: branch protection and rulesets are both unavailable on this
+  # repository's plan, so no check here can be required and a red run does not
+  # block a merge (ADR 0014). A reviewer reading this job is the enforcement.
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      # Two branches that fork the Alembic history each pass on their own and
+      # only collide once both are on main (hy-gh-43 and hy-y8g.2 both did, and
+      # both were caught by a reviewer reading the diff). On a pull request
+      # actions/checkout builds the merge commit, so this runs against the
+      # merged state -- which is the only state where the fork exists.
+      #
+      # `alembic heads` exits 0 with a forked history and just prints both, so
+      # the count is the check. Zero heads also fails: that means the revision
+      # map itself is broken.
+      - name: Single Alembic head
+        run: |
+          heads="$(uv run alembic -c alembic.ini heads)"
+          printf '%s\n' "$heads"
+          count="$(printf '%s\n' "$heads" | grep -c '(head)' || true)"
+          if [ "$count" -ne 1 ]; then
+            echo "::error::expected exactly one Alembic head, found ${count}." \
+              "Repoint the newer migration's down_revision at the current head." >&2
+            exit 1
+          fi
+
+  # The required benchmark gate, and it is honest about what it is: it scores
+  # COMMITTED RECORDINGS of the two local arms with the deterministic scorers
+  # (ADR 0013). No hosted credential, no local model, no GPU -- measured
+  # CPU-only, one happy-path run of the pinned model is 314 seconds, so a
+  # required gate that ran the arms live would be 1.6 to 3.2 hours on a shared
+  # cloud vCPU. What this proves is the harness, the scorers and the recorded
+  # run's scores. It does not prove a live model still passes; the scheduled
+  # `benchmark-live` workflow is what checks that.
+  #
+  # Its own job for the reason `migrations` is: a separately requireable check
+  # that answers in under a minute.
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      # Exits nonzero on a critical GOVERNED-arm failure (#25). The raw
+      # baseline failing a critical predicate is the measurement rather than a
+      # build failure.
+      - name: Score the committed arm recordings
+        run: uv run hyperset evals score
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Full history, because tests/unit checks that every committed recording
+      # names a commit that still resolves (hy-ow2v). The default depth-1
+      # checkout holds one commit, so that check would refuse all four
+      # recordings here -- for the clone, not for the pin -- and the tempting
+      # repair is a skip, which leaves the guard green in the one place it is
+      # meant to bite. This history is 3 MiB.
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+          fetch-depth: 0
+
+      - name: Product positioning check
+        run: python3 scripts/check_docs.py --section positioning
+
+      - name: Research authority check
+        run: python3 scripts/check_docs.py --section research-status
+
+      - name: V0 foundation contract check
+        run: python3 scripts/check_docs.py --section foundation-contract
+
+      - name: Compatibility and link check
+        run: python3 scripts/check_docs.py --section compatibility-links
+
+      - name: Repository shape check
+        run: python3 scripts/check_docs.py --section repo-shape
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: playground/ui/package-lock.json
+
+      - name: Install playground UI dependencies
+        working-directory: playground/ui
+        run: npm ci
+
+      - name: Build playground UI
+        working-directory: playground/ui
+        run: npm run build
+
+      # `--all-groups` installs dependency-GROUPS; `openai-agents` is an EXTRA
+      # (hy-f6g), so without `--all-extras` the two guards over it -- the
+      # hosted-telemetry guard and the question-opacity guard measured against
+      # the live SDK -- skipped here rather than ran. The extra stays optional
+      # for a library consumer, which is a different question from what the
+      # gate installs; `test_ci_runs_the_two_sdk_guards_rather_than_skipping`
+      # fails loudly if this word is removed again.
+      #
+      # `claude-agent-sdk` is a second extra (hy-2g31) and the same word covers
+      # it. Without it the runtime conformance suite's `_claude` arms degrade to
+      # fake-only, which would leave the Protocol's second-vendor claim
+      # unchecked. That extra installs the SDK but not the `claude` CLI it drives
+      # as a subprocess, so `test_ci_conformance_covers_every_hostable_vendor_runtime`
+      # skips its own meta-check here with a reason (hy-kbnd) and the `_claude`
+      # arms are what actually cover the second vendor on this runner.
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      - name: Lint (ruff check)
+        run: uv run ruff check .
+
+      - name: Format check (ruff format)
+        run: uv run ruff format --check .
+
+      # hy-djml step 2: fail on mypy errors this change INTRODUCES, not the whole
+      # baseline. The script recomputes the base and head error sets from the git
+      # graph each run (nothing stored to go stale) and gates on the multiset
+      # difference. It drives its own pinned `uvx mypy`, so it needs no project
+      # install -- only origin/main present, which fetch-depth:0 above provides.
+      # Reviewer-enforced like every check here (ADR 0014); a red run does not
+      # block a merge, but it names exactly what the diff broke.
+      - name: No new mypy errors
+        run: |
+          git fetch --no-tags origin main
+          python3 scripts/mypy_new_errors.py --base origin/main
+
+      - name: Unit tests
+        run: uv run pytest tests/unit
+
+      - name: Integration tests
+        run: uv run pytest tests/integration -m integration
+
+      - name: Postgres repository tests
+        run: uv run pytest tests/postgres -q
+
+      # Named separately from the suite above, which already runs it: this is
+      # the hy-gh-36 regression gate -- no Hyperset-local DB operation may
+      # create authoritative business meaning without a Git commit (ADR 0012).
+      # A failure here is a product-boundary breach, not one more red test.
+      - name: Governed meaning stays Git-owned
+        run: >
+          uv run pytest
+          tests/postgres/test_processor_engine.py::test_no_finding_creates_governed_context_or_a_decision
+          -q
+
+      - name: Docker Compose lifecycle tests
+        run: uv run pytest tests/compose -q

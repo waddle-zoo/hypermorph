@@ -1,0 +1,93 @@
+# The LIVE half of ADR 0013's split gate: arms 1 and 2 against a real Ollama.
+#
+# Not required, and not on pull requests. Measured CPU-only, one happy-path run
+# of the pinned model is 314 seconds, so a required per-PR gate running these
+# arms would be 1.6 to 3.2 hours on a shared cloud vCPU. A scheduled failure
+# does not block a merge by itself; acting on one is a human decision, which is
+# the price of not owning a runner (ADR 0013).
+#
+# WHAT THIS WORKFLOW HAS AND HAS NOT PROVEN, stated because a workflow file
+# reads like a passing job: at the commit that added it, this had never
+# executed. Its first scheduled run is its verification. The same arms have run
+# green locally against Ollama 0.32.4 with qwen2.5:7b at an observed 32,768
+# window, which is what produced the committed recordings the required gate
+# scores.
+name: Benchmark (live local arms)
+
+on:
+  schedule:
+    # Weekly rather than nightly: the run is measured in hours on a GPU-less
+    # runner, and nothing downstream consumes a daily number.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+jobs:
+  live-arms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      # The window is set on the SERVER rather than baked into a tag, which is
+      # the documented way to raise the default and what the probe reads back
+      # from `/api/ps`. Ollama's OpenAI-compatible endpoint ignores a requested
+      # context size, so a run that did not do this would be truncated silently
+      # -- and `observe_pins` refuses to start rather than let that happen.
+      #
+      # SERVING AND RUNNING THE ARMS IN ONE STEP, deliberately (hy-26nd). These
+      # were two steps, and whether a server backgrounded in one `run:` block is
+      # still serving in the next is a property of the runner's process handling
+      # that nothing here has observed -- this workflow has never executed, so
+      # the two-step form was never demonstrated to work at all. One shell
+      # removes the question rather than answering it, and the redirect stops a
+      # backgrounded server from holding the step's output stream open.
+      #
+      # HYPERSET_RECORD is deliberately unset: a benchmark that rewrites its own
+      # evidence whenever it runs cannot detect a regression. Refreshing the
+      # committed recordings is a person's decision, made in a pull request.
+      #
+      # HYPERSET_REQUIRE_LIVE is what makes "nothing ran" red. Without it, an
+      # unreachable server skips every case and the job is green with no live
+      # evidence -- measured as `4 skipped`, exit 0 -- which is indistinguishable
+      # from a real run and is the one outcome this job must not report.
+      #
+      # EACH CASE RUNS THREE TIMES (hy-2beh). That is why this job is budgeted
+      # in hours: 314 seconds per happy-path run x 4 case/arm pairs x 3
+      # repetitions is roughly an hour before the governed arm's extra turns.
+      # `HYPERSET_STABILITY_REPETITIONS` overrides the count, and `-s` is what
+      # puts the `HYPERSET-STABILITY` lines and the disagreeing answers in the
+      # log -- they are the output of this job, not a threshold it enforces.
+      - name: Serve the pinned model at the pinned window and run the live arms
+        env:
+          HYPERSET_REQUIRE_LIVE: "1"
+        run: |
+          OLLAMA_CONTEXT_LENGTH=32768 ollama serve > "$RUNNER_TEMP/ollama.log" 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -sf http://127.0.0.1:11434/api/version && break
+            sleep 2
+          done
+          ollama pull qwen2.5:7b
+          uv run pytest tests/evals -q -s
+
+      - name: The server's own log, whatever happened above
+        if: always()
+        run: cat "$RUNNER_TEMP/ollama.log"
+
+      - name: Score the committed recordings against this commit
+        run: uv run hyperset evals score

@@ -1,0 +1,64 @@
+{
+  "data": {
+    "dataset": {
+      "domain": {
+        "domain": {
+          "urn": "urn:li:domain:revenue"
+        }
+      },
+      "glossaryTerms": null,
+      "lastIngested": null,
+      "name": "finance_orders_daily",
+      "origin": "PROD",
+      "ownership": null,
+      "platform": {
+        "name": "superset",
+        "urn": "urn:li:dataPlatform:superset"
+      },
+      "properties": {
+        "created": null,
+        "customProperties": [
+          {
+            "key": "superset_dataset_id",
+            "value": "1"
+          },
+          {
+            "key": "superset_dataset_uuid",
+            "value": "ae48881d-334f-54a7-94e8-1ffcc73866e2"
+          },
+          {
+            "key": "superset_instance",
+            "value": "local-superset-6.1.0"
+          }
+        ],
+        "description": "Superset physical dataset over the finance order facts.",
+        "externalUrl": null,
+        "lastModified": {
+          "actor": null,
+          "time": 0
+        },
+        "name": "finance_orders_daily",
+        "qualifiedName": null
+      },
+      "schemaMetadata": null,
+      "status": null,
+      "subTypes": null,
+      "tags": null,
+      "type": "DATASET",
+      "upstreams": {
+        "relationships": [
+          {
+            "entity": {
+              "type": "DATASET",
+              "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,analytics.public.finance_orders_daily,PROD)"
+            },
+            "type": "DownstreamOf"
+          }
+        ],
+        "total": 1
+      },
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:superset,ae48881d-334f-54a7-94e8-1ffcc73866e2,PROD)"
+    }
+  },
+  "extensions": {}
+}

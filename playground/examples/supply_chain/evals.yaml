@@ -1,0 +1,12 @@
+# Customer-owned locked case for the playground demo.
+schema_version: 1
+cases:
+  - name: supplier_lead_time_by_warehouse
+    question: What source and rules should an analyst use for supplier lead time by warehouse?
+    critical: true
+    expected:
+      approved_source_ref: table:postgres:analytics.public.purchase_orders
+      prohibited_source_ref: table:postgres:analytics.public.shipment_events
+      required_filter: purchase_orders.status = 'received'
+      required_join: purchase_orders.warehouse_id = warehouse_dim.warehouse_id
+      grain: warehouse and quarter

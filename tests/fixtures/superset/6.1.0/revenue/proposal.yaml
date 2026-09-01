@@ -1,0 +1,33 @@
+kind: governed_metric
+name: recognized_revenue
+label: Recognized Revenue
+domain: revenue
+business_definition: >
+  Revenue on the date an order becomes completed, net of tax, excluding
+  internal/test accounts. This fixture definition is not GAAP guidance.
+expression: "SUM(gross_amount - tax_amount)"
+approved_datasets:
+  - finance_orders_daily
+  - customer_dim
+observed_source_refs:
+  - {native_uuid: ae48881d-334f-54a7-94e8-1ffcc73866e2, role: approved_candidate}
+  - {native_uuid: 5bcf01e3-3f70-50d2-bb31-562b627b09b8, role: required_dimension}
+  - {native_uuid: 6f4976c2-25ea-5d98-b714-9ca8e6c9b7e4, role: prohibited_alternative}
+join_rules:
+  - from: finance_orders_daily.customer_id
+    to: customer_dim.customer_id
+    type: inner
+required_filters:
+  - "finance_orders_daily.status = 'completed'"
+  - "customer_dim.is_test = false"
+deprecated_sources:
+  - dataset: raw_payments
+    reason: Double-counts partial captures and includes non-completed transactions.
+validation_rules:
+  - recognized_revenue must be non-negative
+  - monthly totals must reconcile within 1% of the fixture close value
+caveats:
+  - Do not substitute payment-event dates for order dates.
+owner: team:finance-data
+status: draft
+proposal_state: pending_human_review

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">Hyperset</title>
+  <desc id="desc">Hyperset: governed context for AI analytics</desc>
+  <defs>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38E8C0"/>
+      <stop offset="0.55" stop-color="#6AA8FF"/>
+      <stop offset="1" stop-color="#B77BFF"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#F4FFF9"/>
+      <stop offset="1" stop-color="#B8D9FF"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="320" rx="48" fill="#071512"/>
+  <circle cx="1050" cy="40" r="180" fill="#1C8B75" opacity="0.14"/>
+  <circle cx="1160" cy="300" r="220" fill="#6553B8" opacity="0.14"/>
+
+  <g transform="translate(72 58)" filter="url(#glow)">
+    <path d="M102 0 204 40v78c0 65-42 105-102 126C42 223 0 183 0 118V40z" fill="url(#mark)"/>
+    <path d="M102 28 174 56v61c0 42-24 71-72 91-48-20-72-49-72-91V56z" fill="#071512" opacity="0.94"/>
+    <path d="M51 83h30v39h42V83h30v91h-30v-25H81v25H51z" fill="url(#mark)"/>
+    <circle cx="102" cy="62" r="7" fill="#F4FFF9"/>
+  </g>
+
+  <text x="332" y="150" fill="url(#word)" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="90" font-weight="800" letter-spacing="9">HYPERSET</text>
+  <text x="338" y="210" fill="#91B6AC" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="23" font-weight="600" letter-spacing="5">GOVERNED CONTEXT FOR AI ANALYTICS</text>
+  <path d="M338 245h690" stroke="url(#mark)" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <circle cx="1040" cy="245" r="7" fill="#38E8C0"/>
+</svg>
