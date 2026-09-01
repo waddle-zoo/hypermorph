@@ -1,27 +1,26 @@
 <div align="center">
 
-# Hyperset Hive-Mind
+# Hyperset
 
-<img src="docs/assets/hyperset-logo.svg" alt="Hyperset — governed context for AI analytics" width="720">
+<img src="docs/assets/hyperset-logo.svg" alt="Hyperset, a governed context graph for agents" width="520">
 
-<p><strong>A flexible-yet-governed analytics knowledge graph that improves through use.</strong><br>
-Connect Superset and DataHub evidence to business meaning owned in Git;<br>
-agents can explore and propose, while humans retain approval in Git.</p>
+<p><strong>Give agents one place to find your company's context.</strong><br>
+Start with one domain. Questions show what's missing; feedback gives the team a clear next change to review.</p>
 
 <p>
   <a href="https://github.com/waddle-zoo/hyperset/actions/workflows/ci.yml"><img src="https://github.com/waddle-zoo/hyperset/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="#start-here"><img src="https://img.shields.io/badge/status-feedback%20loop%20MVP-2f6f9f" alt="Feedback loop MVP"></a>
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-%E2%89%A53.11-3776AB" alt="Python 3.11 or newer"></a>
+  <a href="#configure-the-loop"><img src="https://img.shields.io/badge/runtime-OpenAI%20default-10a37f" alt="OpenAI default"></a>
+  <a href="#governance-boundary"><img src="https://img.shields.io/badge/write--back-proposal--only-477d70" alt="Proposal-only write-back"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-2F6F9F.svg" alt="Apache License 2.0"></a>
-  <a href="docs/research/superset-version-compat.md"><img src="https://img.shields.io/badge/Superset-6.1.0-20A6C9" alt="Superset 6.1.0"></a>
-  <a href="docs/research/datahub-graphql-v1.md"><img src="https://img.shields.io/badge/DataHub%20OSS-v1.6.0-4C5FD5" alt="DataHub OSS v1.6.0"></a>
 </p>
 
 <p>
-  <a href="#-start-in-three-steps">Start here</a> ·
-  <a href="docs/getting-started.md">Getting started</a> ·
-  <a href="docs/v0-foundation.md">V0 contract</a> ·
+  <a href="#start-here">Start here</a> ·
+  <a href="#the-flywheel">The flywheel</a> ·
+  <a href="#connect-an-agent-with-mcp">MCP</a> ·
   <a href="docs/architecture.md">Architecture</a> ·
-  <a href="docs/vision-roadmap.md">Roadmap</a> ·
   <a href="AGENTS.md">Agent guide</a> ·
   <a href="https://github.com/waddle-zoo/hyperset/issues">Issues</a>
 </p>
@@ -29,215 +28,227 @@ agents can explore and propose, while humans retain approval in Git.</p>
 </div>
 
 > [!WARNING]
-> Hyperset is pre-1.0 and changing quickly. The local Docker playground is the
-> supported product path today; APIs and configuration may change before the
-> first release.
+> Hyperset is pre-1.0. `make up-demo` is a local, host-loopback-only demo.
+> Configure authentication and durable secrets before exposing it to a
+> network.
 
 <table>
   <tr>
-    <td align="center" width="25%"><br>🧠<br><b>AI-first</b><br><sub>Ask normal questions.<br>Let the agent navigate context.</sub><br><br></td>
-    <td align="center" width="25%"><br>🛡️<br><b>Governed</b><br><sub>Git owns meaning.<br>Humans own approval.</sub><br><br></td>
-    <td align="center" width="25%"><br>🔎<br><b>Traceable</b><br><sub>Every claim carries<br>evidence and provenance.</sub><br><br></td>
-    <td align="center" width="25%"><br>⚡<br><b>Open</b><br><sub>HTTP, MCP, Python,<br>Apache-2.0.</sub><br><br></td>
+    <td align="center" width="50%"><br>🧠<br><b>Company context</b><br><sub>Start with one domain.<br>Grow from the work people do.</sub><br><br></td>
+    <td align="center" width="50%"><br>🔁<br><b>Feedback loop</b><br><sub>Questions become<br>useful signals.</sub><br><br></td>
+  </tr>
+  <tr>
+    <td align="center" width="50%"><br>🛡️<br><b>Human governed</b><br><sub>Agents propose.<br>People merge.</sub><br><br></td>
+    <td align="center" width="50%"><br>⚡<br><b>Agent ready</b><br><sub>Chat, MCP, grep,<br>semantic, graph walk.</sub><br><br></td>
   </tr>
 </table>
 
-## ✨ Start in three steps
+## Start here
 
-You need Docker Desktop, [`uv`](https://docs.astral.sh/uv/), and an OpenAI
-service-account key.
+You need Docker Desktop, Python 3.11+, [`uv`](https://docs.astral.sh/uv/), and
+an OpenAI service-account key.
 
-```bash
+### 1. Start the local loop
+
+~~~bash
 cp .env.example .env
-# Set OPENAI_API_KEY and HYPERSET_EMBEDDING_API_KEY in .env.
+# Add OPENAI_API_KEY and HYPERSET_EMBEDDING_API_KEY to .env.
+# The embedding key may use the same value.
 make up-demo
-```
+~~~
 
-Then open the four product surfaces:
+`make up-demo` starts Postgres, the local API, seeded context, the playground,
+and hosted MCP. Chat and embeddings use the server-side OpenAI configuration;
+no local model runtime is required for the demo.
+
+### 2. Open the four product surfaces
 
 <table>
   <tr>
-    <td align="center"><b>💬 Live chat</b><br><a href="http://localhost:8000/playground/">localhost:8000/playground/</a><br><sub>Ask questions using governed context</sub></td>
-    <td align="center"><b>🧠 Explore the Hive-Mind</b><br><a href="http://localhost:8000/playground/explore/">localhost:8000/playground/explore/</a><br><sub>Search and inspect connected knowledge</sub></td>
-    <td align="center"><b>📝 Review</b><br><a href="http://localhost:8000/review/">localhost:8000/review/</a><br><sub>Evaluate proposal-only context repairs</sub></td>
-    <td align="center"><b>⚙️ Settings</b><br><a href="http://localhost:8000/admin/">localhost:8000/admin/</a><br><sub>Inspect sources, runtime, and readiness</sub></td>
+    <td align="center" width="50%"><b>💬 Live chat</b><br><a href="http://127.0.0.1:8000/playground/">Open playground ↗</a><br><sub>Ask questions and inspect evidence</sub></td>
+    <td align="center" width="50%"><b>🧠 Explore the Hive-Mind</b><br><a href="http://127.0.0.1:8000/playground/explore/">Open graph ↗</a><br><sub>Walk the graph and open nodes</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="50%"><b>📝 Review</b><br><a href="http://127.0.0.1:8000/review/">Open review ↗</a><br><sub>Review proposed context changes</sub></td>
+    <td align="center" width="50%"><b>⚙️ Admin settings</b><br><a href="http://127.0.0.1:8000/admin/">Open settings ↗</a><br><sub>Configure auth and write-back</sub></td>
   </tr>
 </table>
 
-`make up-demo` starts Postgres, the API, pinned Superset 6.1.0, the analytics
-fixture database, two example Git context domains, and hosted MCP. It pulls
-no local model runtime; chat, authoring, and embeddings use the server-side
-OpenAI/Luna settings in `.env`. The hosted MCP endpoint remains available at
-<http://localhost:8010/mcp>. Stop with `make down`;
-`make reset` removes named volumes and asks for confirmation.
+The hosted MCP endpoint is
+<http://127.0.0.1:8010/mcp>. Stop the demo with `make down`; use
+`make reset` only when you intend to remove the named local volumes.
 
-The default demo is **unauthenticated but host-loopback-only** (`:8000`/`:8010`
-are published on `127.0.0.1`; the containers listen on `0.0.0.0`). It is a
-local demonstration, not a secure deployment. The
-full [getting-started guide](docs/getting-started.md) covers every surface's URL
-and auth state, the Compose-profile → surfaces table, and troubleshooting.
+### 3. Put the loop to work
 
-## Why agents use Hyperset
+Ask a question in Live chat or connect an agent over MCP. Then:
 
-Raw metadata can tell an agent that a dataset exists. Hyperset tells it what a
-company approved that dataset to mean, which joins and filters are required,
-what changed, and which parts of the answer remain observed or uncertain.
+1. See which context and evidence shaped the answer.
+2. Mark what was useful, missing, or wrong.
+3. Record the feedback and prepare a proposed definition, link, or caveat.
+4. Review the change and merge it through the human-owned Git path.
 
-```text
-ordinary question
-      │
-      ▼
-agent selects bounded candidates
-      │  exact ContextDirective
-      ▼
-Hyperset resolves Git meaning + source evidence
-      │  one ContextBundle
-      ├───────────────┬───────────────┐
-      ▼               ▼               ▼
-     HTTP            MCP          eval harness
-```
+## The flywheel
 
-The model may choose where to look. Deterministic Hyperset code decides what is
-governed, preserves exact commit/version provenance, and validates the proposed
-analytical plan. The governance kernel does not execute warehouse SQL.
+~~~mermaid
+flowchart TB
+    D["One domain of company docs"] --> G(("HYPERSET<br/>governed context graph"))
+    G --> U["Agents use it<br/>chat or MCP"]
+    U --> F["Feedback is captured<br/>session · intent · evidence · outcome"]
+    F --> P["Prepare a proposal<br/>definition, link, or caveat"]
+    P -->|human review + Git merge| G
+    G -.-> S["grep · semantic search · graph walk"]
+    S -.-> U
+~~~
 
-## The small trust surface
+What gets better over time:
 
-Three operations form the deterministic v0 trust core. Discovery and
-proposal-only review operations are served separately; the full agent-facing
-surface is documented in the [v0 foundation](docs/v0-foundation.md) and
-[ADR 0025](docs/adr/0025-review-ops-expand-the-mcp-trust-surface.md):
+- A first answer leaves an evidence trail.
+- A correction becomes a signal instead of a dead end.
+- A repeated miss gives the team a specific change to review.
+- A human-owned merge adds that change to the governed context.
 
-| Operation | What it does |
-| --- | --- |
-| `list_context_catalog` | Discovers bounded domain, concept, document, source, and graph identifiers. |
-| `resolve_analytics_context` | Resolves an exact directive into a versioned `ContextBundle`. |
-| `validate_analytics_plan` | Checks fields, joins, filters, grain, and validations against that bundle. |
+## What an agent gets
 
-These deterministic operations return the same bytes over REST and MCP.
-Proposal/model operations preserve contract parity but can produce fresh
-drafts. Observed Superset/DataHub assets can corroborate or contradict Git
-context; they never silently become governed meaning.
+Raw metadata can tell an agent that an asset exists. Hyperset helps it reason
+about what the company means: definitions, owners, relationships, caveats,
+source evidence, and what remains observed or uncertain.
+
+The UI labels answers as governed, observed, or no-match, so an agent can tell
+what it may rely on. It can search with exact grep, semantic retrieval, or
+bounded graph navigation, then leave feedback tied to the same session and
+correlation context.
 
 <details>
-<summary><b>📦 Configure a Git context source</b></summary>
+<summary><b>📦 Add a context domain</b></summary>
 
-Git owns definitions, approved sources, joins, filters, caveats, and ownership.
-Hyperset records the exact commit and keeps prior snapshots replayable. A local
-checkout is optional: CI can ship the reviewed tree as a Git bundle.
+Bring in one domain first. Git owns the definitions, approved sources,
+relationships, caveats, and ownership; Hyperset records the source snapshot.
 
-```bash
+~~~bash
 make context-add \
   REPOSITORY=/path/to/analytics-context \
   CONTEXT_PATH=playground/examples/revenue
 
 make context-sync SOURCE_ID=<printed-id>
 make context-status
-```
+~~~
 
-Context layout:
+For a local path, mount the directory into the container or use a Git URL the
+container can reach. The path above is an example from the host machine.
 
-```text
-manifest.yaml   # domains, definitions, sources, joins, filters, ownership
+A context source can start small:
+
+~~~text
+manifest.yaml   # domains, definitions, sources, relationships, ownership
 context.md      # human guidance and caveats
 evals.yaml      # locked evaluation cases
-```
+~~~
 
-Read [ADR 0012](docs/adr/0012-git-owned-context-authority.md) for the authority
-boundary and [ADR 0023](docs/adr/0023-table-and-pipeline-context-identity.md)
-for source identity.
+See [ADR 0012](docs/adr/0012-git-owned-context-authority.md) for the authority
+boundary and [ADR 0041](docs/adr/0041-the-knowledge-graph-is-flexible-yet-governed-and-improves-through-use.md)
+for the flexible graph contract.
 
 </details>
 
-<details>
-<summary><b>🔌 Call the API or MCP</b></summary>
+<details id="connect-an-agent-with-mcp">
+<summary><b>🔌 Connect an agent with MCP</b></summary>
 
-Exact REST resolution:
+The demo exposes Streamable HTTP at `http://127.0.0.1:8010/mcp`. A compatible
+MCP client can use:
 
-```bash
-curl -sS -X POST http://localhost:8000/v0/resolve_analytics_context \
-  -H 'content-type: application/json' \
-  -d '{
-    "query": "Which source and rules should an analyst use for recognized revenue by region?",
-    "directive": {
-      "domains": ["revenue"],
-      "concepts": ["recognized_revenue"]
+~~~json
+{
+  "mcpServers": {
+    "hyperset": {
+      "url": "http://127.0.0.1:8010/mcp"
     }
-  }'
-```
+  }
+}
+~~~
 
-MCP stdio:
+For a local stdio connection:
 
-```bash
+~~~bash
 docker compose run --rm -T mcp
-# or: uv run hyperset serve mcp
-```
+~~~
 
-Hosted MCP is available at `http://localhost:8010/mcp` after `make up-demo`.
+The core MCP path is short:
+
+1. `list_context_catalog`
+2. `search_knowledge` or `expand_analytics_context`
+3. `resolve_analytics_context` and `validate_analytics_plan`
+4. `record_answer_feedback` with the same MCP session and correlation context
+5. `list_review_tasks` and `propose_review_to_git` when a change is warranted
+
+Each trace keeps a proposed change tied to what was asked, what was searched,
+what was hit, and what happened after the answer.
+
+</details>
+
+<details id="configure-the-loop">
+<summary><b>🛡️ Configure the loop</b></summary>
+
+Configuration is layered through environment variables and Admin settings. You
+can customize:
+
+- model and embedding providers;
+- available agents and models;
+- auth, OIDC, workspace boundaries, and context limits;
+- source connections and access boundaries;
+- feedback policy, write-back targets, and reviewers.
+
+The local demo defaults to OpenAI for generation and embeddings. For a network
+deployment, configure authentication and durable secrets before exposing
+Hyperset outside loopback.
 
 </details>
 
 <details>
 <summary><b>🧪 Develop and verify</b></summary>
 
-```bash
+~~~bash
 uv sync --all-extras --all-groups
 uv run ruff check hyperset tests
 uv run ruff format --check hyperset tests
 uv run python scripts/check_docs.py
 uv run python scripts/gate.py
-```
+~~~
 
-Optional service-backed checks require Docker:
+Service-backed checks require Docker:
 
-```bash
+~~~bash
+uv run pytest tests/unit tests/integration -q
 uv run pytest tests/postgres -q
 uv run pytest tests/compose -q
-uv run hyperset evals score
-```
+~~~
 
 </details>
 
 <details>
-<summary><b>🗺️ Read the product direction</b></summary>
+<summary><b>📚 Read the contracts</b></summary>
 
-- **V0 — Prove:** governed Git context improves an answer over raw metadata,
-  end to end. The reproducibility benchmark uses an isolated pinned local-model
-  arm; the shipped demo runtime uses OpenAI/Luna.
-- **V1 — Reach:** bounded assist, estate-scale retrieval, and navigable
-  multi-domain context expansion with explicit provenance.
-- **V2 — Agent Home:** customer-written agents inherit Hyperset's trust
-  properties without Hyperset becoming an agent framework.
-
-The [vision and roadmap](docs/vision-roadmap.md) is directional. The
-[v0-foundation contract](docs/v0-foundation.md) and accepted ADRs are binding.
+- [Getting started](docs/getting-started.md)
+- [Architecture](docs/architecture.md)
+- [Production deployment](docs/production-deployment.md)
+- [Flexible, governed graph contract](docs/adr/0041-the-knowledge-graph-is-flexible-yet-governed-and-improves-through-use.md)
+- [Feedback agent](docs/adr/0033-the-feedback-agent.md)
+- [Agent and contributor guidance](AGENTS.md)
 
 </details>
 
-## 🧭 Project map
+## Governance boundary
 
-| Directory | Role |
-| --- | --- |
-| `hyperset/context` | Git context parsing, validation, and snapshots |
-| `hyperset/connectors` | Read-only Superset and DataHub observation transports |
-| `hyperset/bundle` | `ContextBundle` and plan-validation contracts |
-| `hyperset/planner` | Replaceable question-to-directive runtime adapters |
-| `hyperset/transport` | HTTP and MCP adapters |
-| `hyperset/evals` | Locked cases, recordings, and deterministic scorers |
-| `playground/examples` | Demo context domains |
+Hyperset is a governed context graph, not a warehouse and not an agent
+framework. Connected systems can provide observations and evidence; they do
+not silently become the authority.
 
-## UX research and proposals
+Agents can search, reason, capture feedback, and prepare a proposal. They do
+not silently change governed documents. Humans own the source documents and the
+final Git merge.
 
-The current setup, role journeys, interaction gaps, and proposed mockups are
-documented in [`docs/ux/`](docs/ux/README.md). Start with the
-[setup and interaction audit](docs/ux/current-setup-and-interaction-audit.md),
-then review the [persona blueprints](docs/ux/personas-and-service-blueprints.md),
-[flow proposals](docs/ux/flows-and-service-blueprints.md), and
-[recommendations roadmap](docs/ux/recommendations-roadmap.md). The earlier
-[composite UX prototype](docs/ux/mockups/hyperset-ux-prototype.html) remains
-available for overview; the current [v1 page mockups](docs/ux/mockups/v1/README.md)
-organize the product around Explorer, Context reviewer, and protected Admin.
+The MVP provides bounded, explainable graph navigation today. The graph can
+grow from real usage without turning every observed answer into a rule.
 
 ## License
 
-Hyperset is licensed under the [Apache License, Version 2.0](LICENSE).
+Apache-2.0. See [LICENSE](LICENSE).
