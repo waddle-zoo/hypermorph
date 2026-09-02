@@ -34,10 +34,12 @@ Start with one domain. Questions show what's missing; feedback gives the team a 
 
 <table width="100%" style="width:100%;display:table;table-layout:fixed">
   <tr>
-    <td align="center" width="240"><br>🧠<br><b>Company context</b><br><sub>Start with one domain.<br>Grow as people work.</sub><br><br></td>
-    <td align="center" width="240"><br>🔁<br><b>Feedback loop</b><br><sub>Questions become<br>useful signals.</sub><br><br></td>
-    <td align="center" width="240"><br>🛡️<br><b>Human governed</b><br><sub>Agents propose.<br>People merge.</sub><br><br></td>
-    <td align="center" width="240"><br>⚡<br><b>Agent ready</b><br><sub>Chat, MCP, grep,<br>search, graph walk.</sub><br><br></td>
+    <td align="center" width="480"><br>🧠<br><b>Company context</b><br><sub>Start with one domain.<br>Grow as people work.</sub><br><br></td>
+    <td align="center" width="480"><br>🔁<br><b>Feedback loop</b><br><sub>Questions become<br>useful signals.</sub><br><br></td>
+  </tr>
+  <tr>
+    <td align="center" width="480"><br>🛡️<br><b>Human governed</b><br><sub>Agents propose.<br>People merge.</sub><br><br></td>
+    <td align="center" width="480"><br>⚡<br><b>Agent ready</b><br><sub>Chat, MCP, grep,<br>search, graph walk.</sub><br><br></td>
   </tr>
 </table>
 
