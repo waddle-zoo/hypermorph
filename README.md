@@ -32,14 +32,14 @@ Start with one domain. Questions show what's missing; feedback gives the team a 
 > Configure authentication and durable secrets before exposing it to a
 > network.
 
-<table width="100%">
+<table width="100%" style="width:100%;display:table;table-layout:fixed">
   <tr>
-    <td align="center" width="50%"><br>🧠<br><b>Company context</b><br><sub>Start with one domain.<br>Grow from the work people do.</sub><br><br></td>
-    <td align="center" width="50%"><br>🔁<br><b>Feedback loop</b><br><sub>Questions become<br>useful signals.</sub><br><br></td>
+    <td align="center" width="480"><br>🧠<br><b>Company context</b><br><sub>Start with one domain.<br>Grow as people work.</sub><br><br></td>
+    <td align="center" width="480"><br>🔁<br><b>Feedback loop</b><br><sub>Questions become<br>useful signals.</sub><br><br></td>
   </tr>
   <tr>
-    <td align="center" width="50%"><br>🛡️<br><b>Human governed</b><br><sub>Agents propose.<br>People merge.</sub><br><br></td>
-    <td align="center" width="50%"><br>⚡<br><b>Agent ready</b><br><sub>Chat, MCP, grep,<br>semantic, graph walk.</sub><br><br></td>
+    <td align="center" width="480"><br>🛡️<br><b>Human governed</b><br><sub>Agents propose.<br>People merge.</sub><br><br></td>
+    <td align="center" width="480"><br>⚡<br><b>Agent ready</b><br><sub>Chat, MCP, grep,<br>search, graph walk.</sub><br><br></td>
   </tr>
 </table>
 
@@ -63,14 +63,12 @@ no local model runtime is required for the demo.
 
 ### 2. Open the four product surfaces
 
-<table width="100%">
+<table width="100%" style="width:100%;display:table;table-layout:fixed">
   <tr>
-    <td align="center" width="50%"><b>💬 Live chat</b><br><a href="http://127.0.0.1:8000/playground/">Open playground ↗</a><br><sub>Ask questions and inspect evidence</sub></td>
-    <td align="center" width="50%"><b>🧠 Explore the Hive-Mind</b><br><a href="http://127.0.0.1:8000/playground/explore/">Open graph ↗</a><br><sub>Walk the graph and open nodes</sub></td>
-  </tr>
-  <tr>
-    <td align="center" width="50%"><b>📝 Review</b><br><a href="http://127.0.0.1:8000/review/">Open review ↗</a><br><sub>Review proposed context changes</sub></td>
-    <td align="center" width="50%"><b>⚙️ Admin settings</b><br><a href="http://127.0.0.1:8000/admin/">Open settings ↗</a><br><sub>Configure auth and write-back</sub></td>
+    <td align="center" width="25%"><b>💬 Live chat</b><br><a href="http://127.0.0.1:8000/playground/">Open playground ↗</a><br><sub>Ask questions and inspect evidence</sub></td>
+    <td align="center" width="25%"><b>🧠 Explore the Hive-Mind</b><br><a href="http://127.0.0.1:8000/playground/explore/">Open graph ↗</a><br><sub>Walk the graph and open nodes</sub></td>
+    <td align="center" width="25%"><b>📝 Review</b><br><a href="http://127.0.0.1:8000/review/">Open review ↗</a><br><sub>Review proposed context changes</sub></td>
+    <td align="center" width="25%"><b>⚙️ Admin settings</b><br><a href="http://127.0.0.1:8000/admin/">Open settings ↗</a><br><sub>Configure auth and write-back</sub></td>
   </tr>
 </table>
 
