@@ -8,7 +8,7 @@
 Start with one domain. Questions show what's missing; feedback gives the team a clear next change to review.</p>
 
 <p>
-  <a href="https://github.com/waddle-zoo/hyperset/actions/workflows/ci.yml"><img src="https://github.com/waddle-zoo/hyperset/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/waddle-zoo/hypermorph/actions/workflows/ci.yml"><img src="https://github.com/waddle-zoo/hypermorph/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="#start-here"><img src="https://img.shields.io/badge/status-feedback%20loop%20MVP-2f6f9f" alt="Feedback loop MVP"></a>
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-%E2%89%A53.11-3776AB" alt="Python 3.11 or newer"></a>
   <a href="#configure-the-loop"><img src="https://img.shields.io/badge/runtime-OpenAI%20default-10a37f" alt="OpenAI default"></a>
@@ -22,7 +22,7 @@ Start with one domain. Questions show what's missing; feedback gives the team a 
   <a href="#connect-an-agent-with-mcp">MCP</a> ·
   <a href="docs/architecture.md">Architecture</a> ·
   <a href="AGENTS.md">Agent guide</a> ·
-  <a href="https://github.com/waddle-zoo/hyperset/issues">Issues</a>
+  <a href="https://github.com/waddle-zoo/hypermorph/issues">Issues</a>
 </p>
 
 </div>
@@ -32,7 +32,7 @@ Start with one domain. Questions show what's missing; feedback gives the team a 
 > Configure authentication and durable secrets before exposing it to a
 > network.
 
-<table>
+<table width="100%">
   <tr>
     <td align="center" width="50%"><br>🧠<br><b>Company context</b><br><sub>Start with one domain.<br>Grow from the work people do.</sub><br><br></td>
     <td align="center" width="50%"><br>🔁<br><b>Feedback loop</b><br><sub>Questions become<br>useful signals.</sub><br><br></td>
@@ -63,7 +63,7 @@ no local model runtime is required for the demo.
 
 ### 2. Open the four product surfaces
 
-<table>
+<table width="100%">
   <tr>
     <td align="center" width="50%"><b>💬 Live chat</b><br><a href="http://127.0.0.1:8000/playground/">Open playground ↗</a><br><sub>Ask questions and inspect evidence</sub></td>
     <td align="center" width="50%"><b>🧠 Explore the Hive-Mind</b><br><a href="http://127.0.0.1:8000/playground/explore/">Open graph ↗</a><br><sub>Walk the graph and open nodes</sub></td>
